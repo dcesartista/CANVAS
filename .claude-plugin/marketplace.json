@@ -1,0 +1,20 @@
+{
+  "name": "canvas-marketplace",
+  "owner": {
+    "name": "Dito Cesartista"
+  },
+  "description": "CANVAS \u2014 agentic native-Android coding system.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "canvas",
+      "source": "./distribution/claude-plugin/canvas",
+      "description": "Agentic native-Android coding: scaffold/feature/audit/perf skills + workers + reference corpus.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Dito Cesartista",
+        "email": "m.cesartista@gmail.com"
+      }
+    }
+  ]
+}

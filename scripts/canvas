@@ -60,7 +60,14 @@ def cmd_export(args) -> int:
     manifest["_canvas_version"] = version()
     renderer = load_renderer(args.host)
 
-    target = Path(args.target or ROOT).expanduser().resolve()
+    # Plugin hosts build a self-contained bundle into the repo's distribution/
+    # dir by default (and keep the marketplace manifest in sync).
+    plugin_defaults = {
+        "claude-plugin": ROOT / "distribution" / "claude-plugin" / "canvas",
+        "opencode-npm": ROOT / "distribution" / "opencode-npm",
+    }
+    default_target = plugin_defaults.get(args.host, ROOT)
+    target = Path(args.target or default_target).expanduser().resolve()
     if not args.global_:
         target.mkdir(parents=True, exist_ok=True)
 
@@ -70,6 +77,9 @@ def cmd_export(args) -> int:
         print(f"error: {e}", file=sys.stderr)
         return 1
 
+    if args.host == "claude-plugin":
+        written += _write_claude_marketplace(manifest)
+
     for rel in written:
         print(f"  wrote {rel}")
     shown = "global (host user config)" if args.global_ else target
@@ -78,6 +88,32 @@ def cmd_export(args) -> int:
     if args.global_:
         print("  Restart the host tool to load the new skills/agents.")
     return 0
+
+
+def _write_claude_marketplace(manifest: dict) -> list[str]:
+    """Write .claude-plugin/marketplace.json at the repo root listing the local
+    plugin bundle, so `claude plugin marketplace add <CANVAS repo>` works.
+    Relative sources require a git-based marketplace (the CANVAS repo)."""
+    v = manifest.get("_canvas_version") or "0.1.0"
+    mkt = {
+        "name": "canvas-marketplace",
+        "owner": {"name": "Dito Cesartista"},
+        "description": "CANVAS — agentic native-Android coding system.",
+        "version": v,
+        "plugins": [
+            {
+                "name": "canvas",
+                "source": "./distribution/claude-plugin/canvas",
+                "description": "Agentic native-Android coding: scaffold/feature/audit/perf skills + workers + reference corpus.",
+                "version": v,
+                "author": {"name": "Dito Cesartista", "email": "m.cesartista@gmail.com"},
+            }
+        ],
+    }
+    mkt_dir = ROOT / ".claude-plugin"
+    mkt_dir.mkdir(parents=True, exist_ok=True)
+    (mkt_dir / "marketplace.json").write_text(json.dumps(mkt, indent=2) + "\n")
+    return [".claude-plugin/marketplace.json"]
 
 
 def cmd_list(args) -> int:

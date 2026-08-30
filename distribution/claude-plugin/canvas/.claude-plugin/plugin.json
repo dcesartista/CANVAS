@@ -1,0 +1,9 @@
+{
+  "name": "canvas",
+  "description": "Agentic native-Android coding system: scaffold, feature, audit and perf-review skills + workers, bundled with the CANVAS reference corpus.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Dito Cesartista",
+    "email": "m.cesartista@gmail.com"
+  }
+}
