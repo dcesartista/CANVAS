@@ -60,9 +60,9 @@ def cmd_export(args) -> int:
     manifest["_canvas_version"] = version()
     renderer = load_renderer(args.host)
 
-    target = Path(args.target or ROOT)
-    target = target.expanduser().resolve()
-    target.mkdir(parents=True, exist_ok=True)
+    target = Path(args.target or ROOT).expanduser().resolve()
+    if not args.global_:
+        target.mkdir(parents=True, exist_ok=True)
 
     try:
         written = renderer.render(root=ROOT, manifest=manifest, target=target, global_install=args.global_)
@@ -72,10 +72,11 @@ def cmd_export(args) -> int:
 
     for rel in written:
         print(f"  wrote {rel}")
-    print(f"\nCANVAS v{version()} exported to host '{args.host}' at {target}")
+    shown = "global (host user config)" if args.global_ else target
+    print(f"\nCANVAS v{version()} exported to host '{args.host}' at {shown}")
     print(f"  installed: {len(written)} artifacts")
     if args.global_:
-        print("  NOTE: global config is in the host's user config — restart the host tool to load.")
+        print("  Restart the host tool to load the new skills/agents.")
     return 0
 
 

@@ -30,22 +30,30 @@ cross-cutting     lib/cross-cutting/     the shared "what": API contract, checkl
 CANVAS is written **once, host-neutral** and rendered to whichever agent host you use.
 
 - **[core/](core/)** — the canonical, host-neutral source: `manifest.json` (the registry) + `skills/` (workflow entry points) + `agents/` (subagents/workers).
-- **[adapters/](adapters/)** — per-host renderers that map `core/` onto each host's on-disk format (`opencode/` ships first; `claude-code/`, `cursor/`, `copilot/`, `codex/` to follow).
+- **[adapters/](adapters/)** — per-host renderers that map `core/` onto each host's on-disk format. Ships: `opencode/`, `claude-code/`. Planned: `cursor/`, `copilot/`, `codex/`.
 - **[scripts/canvas](scripts/canvas)** — the CLI that renders and installs.
 
 ```bash
-./scripts/canvas list                # what CANVAS knows how to export
-./scripts/canvas export --host opencode --target <your-project>   # install per project
+./scripts/canvas list                          # what CANVAS knows how to export
+./scripts/canvas export --host opencode    --target <project>   # per-project
+./scripts/canvas export --host claude-code --target <project>   # per-project
+./scripts/canvas export --host claude-code --global             # ~/.claude/ (all projects)
 ```
 
-Per-project install writes `<project>/.opencode/skills/*/SKILL.md` (workflow skills),
-`<project>/.opencode/agent/*.md` (workers as subagents), and merges a
-`references.canvas` entry into `<project>/opencode.json` pointing at this repo —
-so `lib/android/reference/` and `lib/android/skills/` are reachable from any
-consumer project and update with a single `git pull` of CANVAS.
+**opencode** — per-project install writes `<project>/.opencode/skills/*/SKILL.md`,
+`<project>/.opencode/agent/*.md`, and merges `references.canvas` into
+`<project>/opencode.json` pointing at this repo — so `lib/android/reference/`
+and `lib/android/skills/` are reachable from any consumer project and update
+with a single `git pull` of CANVAS.
 
-Open code in the consumer project, restart opencode, then e.g. `/build-android-starter`,
-`/build-android-feature`, `/audit`, `/perf-review`.
+**claude-code** — installs skills → `.claude/skills/` and subagents →
+`.claude/agents/`. `--global` installs into `~/.claude/` for all projects.
+Each exported file carries a one-line "reference root" preamble pointing the
+model at the CANVAS corpus (no config merge needed — Claude Code has no
+`references` key, so the corpus is addressed by the CANVAS repo path).
+
+Restart the host tool after installing, open a consumer project, then e.g.
+`/build-android-starter`, `/build-android-feature`, `/audit`, `/perf-review`.
 
 ## Governance
 
