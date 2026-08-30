@@ -1,0 +1,64 @@
+{
+  "version": "0.1.0",
+  "core": {
+    "version": "read from VERSION",
+    "description": "Host-neutral CANVAS skill & agent registry",
+    "reference": "model-independent memory of CANVAS via the repo reference"
+  },
+  "skills": [
+    {
+      "id": "build-android-starter",
+      "kind": "workflow",
+      "user_invocable": true,
+      "source": "core/skills/build-android-starter.md",
+      "spawns": "android-scaffold-worker"
+    },
+    {
+      "id": "build-android-feature",
+      "kind": "workflow",
+      "user_invocable": true,
+      "source": "core/skills/build-android-feature.md",
+      "spawns": "android-feature-worker"
+    },
+    {
+      "id": "audit",
+      "kind": "workflow",
+      "user_invocable": true,
+      "source": "core/skills/audit.md",
+      "spawns": "auditor"
+    },
+    {
+      "id": "perf-review",
+      "kind": "workflow",
+      "user_invocable": true,
+      "source": "core/skills/perf-review.md",
+      "spawns": "perf-scorer"
+    }
+  ],
+  "agents": [
+    {
+      "id": "android-scaffold-worker",
+      "kind": "worker",
+      "model": "sonnet",
+      "source": "core/agents/android-scaffold-worker.md"
+    },
+    {
+      "id": "android-feature-worker",
+      "kind": "worker",
+      "model": "sonnet",
+      "source": "core/agents/android-feature-worker.md"
+    },
+    {
+      "id": "auditor",
+      "kind": "worker",
+      "model": "sonnet",
+      "source": "core/agents/auditor.md"
+    },
+    {
+      "id": "perf-scorer",
+      "kind": "worker",
+      "model": "sonnet",
+      "source": "core/agents/perf-scorer.md"
+    }
+  ]
+}

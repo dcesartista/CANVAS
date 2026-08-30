@@ -25,6 +25,28 @@ cross-cutting     lib/cross-cutting/     the shared "what": API contract, checkl
 - **Build the minimum, grow by recurrence** — heavier components are added only when real friction proves the need.
 - **Every scaffold is production-grade by default** — auth, DI, architecture, testing, accessibility, and release readiness are included, never bolted on.
 
+## Host-agnostic distribution
+
+CANVAS is written **once, host-neutral** and rendered to whichever agent host you use.
+
+- **[core/](core/)** — the canonical, host-neutral source: `manifest.json` (the registry) + `skills/` (workflow entry points) + `agents/` (subagents/workers).
+- **[adapters/](adapters/)** — per-host renderers that map `core/` onto each host's on-disk format (`opencode/` ships first; `claude-code/`, `cursor/`, `copilot/`, `codex/` to follow).
+- **[scripts/canvas](scripts/canvas)** — the CLI that renders and installs.
+
+```bash
+./scripts/canvas list                # what CANVAS knows how to export
+./scripts/canvas export --host opencode --target <your-project>   # install per project
+```
+
+Per-project install writes `<project>/.opencode/skills/*/SKILL.md` (workflow skills),
+`<project>/.opencode/agent/*.md` (workers as subagents), and merges a
+`references.canvas` entry into `<project>/opencode.json` pointing at this repo —
+so `lib/android/reference/` and `lib/android/skills/` are reachable from any
+consumer project and update with a single `git pull` of CANVAS.
+
+Open code in the consumer project, restart opencode, then e.g. `/build-android-starter`,
+`/build-android-feature`, `/audit`, `/perf-review`.
+
 ## Governance
 
 - **[docs/evaluation/](docs/evaluation/)** — append-only friction log (what happened, evidence-ranked).

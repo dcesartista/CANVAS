@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""canvas — the CANVAS distribution CLI.
+
+Renders the host-neutral core/ into a specific AI-agent host's format
+(opencode, claude-code, cursor, copilot, codex, ...). This is the seam that
+keeps core/ (the "what") separate from adapters/ (the "how per host").
+
+Usage:
+    canvas export --host <host> [--target <dir>] [--global]
+    canvas list
+    canvas version
+
+Each host has an adapter under adapters/<host>/ that knows how to render
+core/ + core/manifest.json into that host's expected on-disk layout.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent  # repo root
+
+
+def load_manifest() -> dict:
+    with open(ROOT / "core" / "manifest.json") as f:
+        return json.load(f)
+
+
+def version() -> str:
+    v = (ROOT / "VERSION").read_text().strip()
+    return v or "0.1.0"
+
+
+def available_hosts() -> list[str]:
+    adapter_dir = ROOT / "adapters"
+    if not adapter_dir.exists():
+        return []
+    return [d.name for d in adapter_dir.iterdir() if d.is_dir() and (d / "render.py").exists()]
+
+
+def load_renderer(host: str):
+    """Dynamically import adapters/<host>/render.py and return its render() fn."""
+    import importlib.util
+
+    path = ROOT / "adapters" / host / "render.py"
+    if not path.exists():
+        print(f"error: no adapter for host '{host}' (expected {path})", file=sys.stderr)
+        sys.exit(1)
+    spec = importlib.util.spec_from_file_location(f"canvas_adapter_{host}", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def cmd_export(args) -> int:
+    manifest = load_manifest()
+    manifest["_canvas_version"] = version()
+    renderer = load_renderer(args.host)
+
+    target = Path(args.target or ROOT)
+    target = target.expanduser().resolve()
+    target.mkdir(parents=True, exist_ok=True)
+
+    try:
+        written = renderer.render(root=ROOT, manifest=manifest, target=target, global_install=args.global_)
+    except NotImplementedError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+
+    for rel in written:
+        print(f"  wrote {rel}")
+    print(f"\nCANVAS v{version()} exported to host '{args.host}' at {target}")
+    print(f"  installed: {len(written)} artifacts")
+    if args.global_:
+        print("  NOTE: global config is in the host's user config — restart the host tool to load.")
+    return 0
+
+
+def cmd_list(args) -> int:
+    print(f"CANVAS v{version()}")
+    print("hosts available:")
+    for h in available_hosts():
+        print(f"  - {h}")
+    print("core exportables:")
+    for skill in load_manifest()["skills"]:
+        print(f"  skill  {skill['id']}")
+    for agent in load_manifest()["agents"]:
+        print(f"  agent  {agent['id']}")
+    return 0
+
+
+def main(argv=None) -> int:
+    p = argparse.ArgumentParser(prog="canvas", description=__doc__)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    ex = sub.add_parser("export", help="render core/ into a host's format")
+    ex.add_argument("--host", required=True, choices=available_hosts() or None,
+                    help="target host (see adapters/)")
+    ex.add_argument("--target", default=None,
+                    help="output directory (default: write into the host's project/global location)")
+    ex.add_argument("--global", dest="global_", action="store_true",
+                    help="install into the host's GLOBAL/user config instead of a project dir")
+    ex.set_defaults(fn=cmd_export)
+
+    ls = sub.add_parser("list", help="list hosts + core exportables")
+    ls.set_defaults(fn=cmd_list)
+
+    args = p.parse_args(argv)
+    return args.fn(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

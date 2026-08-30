@@ -23,3 +23,7 @@ captures/
 
 # Local extensions (agent runtime)
 .agentic.local/
+
+# Python (agent CLI)
+__pycache__/
+*.pyc
