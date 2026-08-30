@@ -30,30 +30,53 @@ cross-cutting     lib/cross-cutting/     the shared "what": API contract, checkl
 CANVAS is written **once, host-neutral** and rendered to whichever agent host you use.
 
 - **[core/](core/)** — the canonical, host-neutral source: `manifest.json` (the registry) + `skills/` (workflow entry points) + `agents/` (subagents/workers).
-- **[adapters/](adapters/)** — per-host renderers that map `core/` onto each host's on-disk format. Ships: `opencode/`, `claude-code/`. Planned: `cursor/`, `copilot/`, `codex/`.
+- **[adapters/](adapters/)** — per-host renderers that map `core/` onto each host's on-disk format. Ships: `opencode/`, `claude-code/`, `claude-plugin/`. Planned: `cursor/`, `copilot/`, `codex/`.
 - **[scripts/canvas](scripts/canvas)** — the CLI that renders and installs.
+- **[distribution/](distribution/)** — pre-built, committed bundles (e.g. the Claude plugin).
 
 ```bash
 ./scripts/canvas list                          # what CANVAS knows how to export
-./scripts/canvas export --host opencode    --target <project>   # per-project
-./scripts/canvas export --host claude-code --target <project>   # per-project
-./scripts/canvas export --host claude-code --global             # ~/.claude/ (all projects)
+./scripts/canvas export --host opencode    --target <project>                 # per-project
+./scripts/canvas export --host opencode    --global --repo <git-url>          # all projects, corpus auto-fetched
+./scripts/canvas export --host claude-code --global                           # ~/.claude/ (all projects)
+./scripts/canvas export --host claude-plugin                                  # rebuild the Claude plugin bundle
 ```
 
-**opencode** — per-project install writes `<project>/.opencode/skills/*/SKILL.md`,
-`<project>/.opencode/agent/*.md`, and merges `references.canvas` into
-`<project>/opencode.json` pointing at this repo — so `lib/android/reference/`
-and `lib/android/skills/` are reachable from any consumer project and update
-with a single `git pull` of CANVAS.
+### opencode
 
-**claude-code** — installs skills → `.claude/skills/` and subagents →
-`.claude/agents/`. `--global` installs into `~/.claude/` for all projects.
-Each exported file carries a one-line "reference root" preamble pointing the
-model at the CANVAS corpus (no config merge needed — Claude Code has no
-`references` key, so the corpus is addressed by the CANVAS repo path).
+Per-project install writes `<project>/.opencode/skills/*/SKILL.md`,
+`<project>/.opencode/agent/*.md`, and merges a `references.canvas` entry into
+`<project>/opencode.json`. Pass `--global` + `--repo <git-url>` to install the
+skills into `~/.config/opencode/skills/` (all projects) and make
+`references.canvas` use `repository:` — opencode then **auto-fetches the CANVAS
+repo**, so there is nothing to clone. Without `--repo`, the reference points at
+this local checkout via `path:` instead.
 
-Restart the host tool after installing, open a consumer project, then e.g.
-`/build-android-starter`, `/build-android-feature`, `/audit`, `/perf-review`.
+opencode plugins themselves are npm TS/JS modules and **cannot carry Agent
+Skills** today, so distribution is via these skills/reference dirs rather than
+a plugin package.
+
+### claude-code
+
+Installs skills → `.claude/skills/` and subagents → `.claude/agents/`.
+`--global` installs into `~/.claude/` for all projects. Since Claude Code has no
+`references` key, each exported file carries a one-line "reference root"
+preamble pointing the model at the CANVAS corpus (the CANVAS repo path).
+
+### claude-plugin (no repo cloning needed)
+
+The idiomatic Claude Code path. CANVAS is packaged as a self-contained plugin
+(the full corpus is bundled, because Claude Code caches plugins and cached
+plugins cannot reach outside files), published through a plugin marketplace:
+
+```bash
+claude plugin marketplace add <CANVAS git repo>
+claude plugin install canvas@canvas-marketplace
+```
+
+Then restart/reload and use `/build-android-starter`, `/build-android-feature`,
+`/audit`, `/perf-review` from any project. Rebuild the bundle after a CANVAS
+change with `./scripts/canvas export --host claude-plugin` and bump `VERSION`.
 
 ## Governance
 

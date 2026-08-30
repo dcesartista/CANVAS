@@ -58,13 +58,14 @@ def load_renderer(host: str):
 def cmd_export(args) -> int:
     manifest = load_manifest()
     manifest["_canvas_version"] = version()
+    if getattr(args, "repo", None):
+        manifest["_canvas_repo"] = args.repo
     renderer = load_renderer(args.host)
 
     # Plugin hosts build a self-contained bundle into the repo's distribution/
     # dir by default (and keep the marketplace manifest in sync).
     plugin_defaults = {
         "claude-plugin": ROOT / "distribution" / "claude-plugin" / "canvas",
-        "opencode-npm": ROOT / "distribution" / "opencode-npm",
     }
     default_target = plugin_defaults.get(args.host, ROOT)
     target = Path(args.target or default_target).expanduser().resolve()
@@ -140,6 +141,8 @@ def main(argv=None) -> int:
                     help="output directory (default: write into the host's project/global location)")
     ex.add_argument("--global", dest="global_", action="store_true",
                     help="install into the host's GLOBAL/user config instead of a project dir")
+    ex.add_argument("--repo", default=None,
+                    help="CANVAS git URL for the opencode references.canvas 'repository' field (auto-fetch, no clone); defaults to $CANVAS_REPO")
     ex.set_defaults(fn=cmd_export)
 
     ls = sub.add_parser("list", help="list hosts + core exportables")
