@@ -1,7 +1,7 @@
 # Concurrency — theory
 
 > What coroutine-based concurrency IS and why. Family-agnostic — the single source of truth.
-> How, per stack: `reference/families/android/concurrency-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §3.
+> How, per stack: `../lib/android/reference/concurrency-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §3.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 Android concurrency is **coroutines + Flow** (QUALITY-BAR §3): lightweight suspending work managed by structured concurrency — every coroutine lives in a scope, every scope has a lifetime, and cancellation travels top-down. This is the model [the Kotlin coroutines guide](https://kotlinlang.org/docs/coroutines-guide.html) describes: the app must never outlive its scopes and must never block the main thread.

@@ -1,7 +1,7 @@
 # API — theory
 
 > What a well-formed REST API IS and why. Family-agnostic — the single source of truth.
-> How, per stack: `reference/families/android/api-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §3.
+> How, per stack: `../lib/android/reference/api-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §3.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 The API is the **wire contract the mobile app lives by** (QUALITY-BAR §3): REST over HTTP, specified **first** in OpenAPI 3.1, with the client generated from that spec so there are no hand-written DTOs to drift. Every rule below exists to keep that contract correct, stable, and evolvable — because a shipping app cannot renegotiate the wire shape overnight. [Google AIP](https://google.aip.dev/) is the style authority; RFC 9457 and IETF drafts set the message formats.

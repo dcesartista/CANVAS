@@ -1,7 +1,7 @@
 # Testing — theory
 
 > What good tests ARE and why. Family-agnostic — the single source of truth.
-> How, per stack: `reference/families/android/testing-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §6, §7.
+> How, per stack: `../lib/android/reference/testing-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §6, §7.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 Tests exist to **let you change code with confidence** (QUALITY-BAR §6). We test *behavior*, not lines — coverage is a floor, not a goal. Push tests **down** the pyramid: many fast, isolated unit tests; fewer integration tests; a handful of UI flows. Categories follow [Google's testing foundation](https://developer.android.com/training/testing/foundations) and the split is ~70/20/10 (QUALITY-BAR §6).

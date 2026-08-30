@@ -17,7 +17,7 @@ If the request is not a new project → STOP and route to `/build-android-featur
 Spawn `android-scaffold-worker` with the intent inlined:
 
 > Scaffold a new project named **<name>** at **<target_dir>**, consuming **<backend/contract>**.
-> Follow `lib/families/android/reference/project-scaffold-impl.md`, call the family `android-create-*` skills, write the project, then **Bring it up** (Gate 1 build; install + launch if a target is available; Gate 2 tests) and self-validate with Glob+Grep. Report status + any friction.
+> Follow `lib/android/reference/project-scaffold-impl.md`, call the family `android-create-*` skills, write the project, then **Bring it up** (Gate 1 build; install + launch if a target is available; Gate 2 tests) and self-validate with Glob+Grep. Report status + any friction.
 
 ## Step 2 — Report
 Relay the worker's `## Scaffold Complete` (build + run status, created paths), then:

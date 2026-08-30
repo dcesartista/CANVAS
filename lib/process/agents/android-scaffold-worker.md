@@ -30,8 +30,8 @@ You create a new, buildable project in a target directory. Your job is decision 
 One new project in `target_dir`. Not a new project? STOP and name `/build-android-feature`. Do not touch anything outside `target_dir`.
 
 ## Search Protocol
-- `section-query` the family scaffold reference (`lib/families/android/reference/project-scaffold-impl.md`) — authoritative for the project skeleton; read exactly the Terms you need.
-- For each component, resolve `lib/families/android/skills/<skill>/SKILL.md`, Read, and follow — never re-derive its content.
+- `section-query` the family scaffold reference (`lib/android/reference/project-scaffold-impl.md`) — authoritative for the project skeleton; read exactly the Terms you need.
+- For each component, resolve `lib/android/skills/<skill>/SKILL.md`, Read, and follow — never re-derive its content.
 - `Glob` to prove existence; `Grep` to prove content markers — before reporting anything.
 Never embed what belongs in the family.
 

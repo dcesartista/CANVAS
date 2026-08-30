@@ -1,7 +1,7 @@
 # Security — theory
 
 > What secure-by-default Android IS and why. The OWASP/NIST-anchored standard of QUALITY-BAR §4.
-> How, per stack: `reference/families/android/security-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §4, §7.
+> How, per stack: `../lib/android/reference/security-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §4, §7.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 Security on mobile is **defense in depth at every trust boundary** (QUALITY-BAR §4): the app runs on a device the user may not fully control, talks to a server over an untrusted network, and holds tokens whose compromise is an account compromise. This layer is anchored to [OWASP ASVS 5.0 Level 2](https://owasp.org/www-project-application-security-verification-standard/) and the [OWASP Top 10:2025](https://owasp.org/Top10/), with a zero-high-findings bar.

@@ -1,7 +1,7 @@
 # Release — theory
 
 > What a shippable, reproducible Android release IS and why. The QUALITY-BAR §7 path to the store.
-> How, per stack: `reference/families/android/release-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §7, §8.
+> How, per stack: `../lib/android/reference/release-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §7, §8.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 A release is **one reproducible artifact that ships to real users** (QUALITY-BAR §7): the same source and inputs produce the same signed App Bundle, minified and optimized, with a keystore that never left the CI secrets. Everything below is the discipline that makes "press release" a non-event instead of a nerve-racking ritual — [Gradle build](https://developer.android.com/build) docs are the authority.

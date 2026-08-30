@@ -1,7 +1,7 @@
 # Accessibility — theory
 
 > What accessible Android UI IS and why. WCAG 2.2 AA mapped to the platform — QUALITY-BAR §5.
-> How, per stack: `reference/families/android/accessibility-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §5.
+> How, per stack: `../lib/android/reference/accessibility-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §5.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 Accessibility makes the app **usable by everyone, including TalkBack and other assistive technology** (QUALITY-BAR §5). It is not a bonus for the few: it is WCAG 2.2 AA applied to a native screen, tested like a feature. The platform's semantics tree is the exact hook W3C's criteria expect — [Google accessibility](https://developer.android.com/guide/topics/ui/accessibility) docs and the [WCAG 2.2 quickref](https://www.w3.org/WAI/WCAG22/quickref/) are the authorities.

@@ -1,7 +1,7 @@
 # Performance — theory
 
 > What performant Compose UI IS and why. 60fps with responsive cold start — the QUALITY-BAR §5 contract.
-> How, per stack: `reference/families/android/performance-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §5, §7.
+> How, per stack: `../lib/android/reference/performance-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §5, §7.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 Performance is a **user-experience contract, not a benchmark**: frames land within 16.6ms, scrolling stays at 60fps, cold start reaches content fast, and memory stays flat across long sessions. The official [Compose performance](https://developer.android.com/jetpack/compose/performance) guidance is the authority; the rules below make jank structurally hard and make performance *measurable* per release (QUALITY-BAR §5, §7).

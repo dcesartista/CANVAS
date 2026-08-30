@@ -1,7 +1,7 @@
 # Presentation — theory
 
 > What the presentation/UI layer IS and why. Family-agnostic — the single source of truth.
-> How, per stack: `reference/families/android/presentation-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §1, §5.
+> How, per stack: `../lib/android/reference/presentation-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §1, §5.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 The presentation layer renders domain/use-case output and captures user intent — nothing else. It is a **pure function of state**: given the same state object, it draws the same screen. All logic lives in state holders (ViewModels) that reduce user events into new state; the UI contains no business decision and no domain-model mutation ([Google UI layer](https://developer.android.com/topic/architecture/ui-layer)).

@@ -1,7 +1,7 @@
 # Project Scaffold — theory
 
 > What a production-grade Android scaffold IS and why. The skeleton that ships standards before features.
-> How, per stack: `reference/families/android/project-scaffold-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md).
+> How, per stack: `../lib/android/reference/project-scaffold-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md).
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 A scaffold is the **quick-start**: a runnable, empty-but-correct Android project that already embodies the Quality Bar ([Android project setup](https://developer.android.com/studio/projects)), so the first feature lands into a production-shaped home instead of a blank folder. Everything below is wiring and conventions — no business logic — and the success criterion is: clone, bring up, and build features against real standards in minutes.

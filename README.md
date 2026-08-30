@@ -4,7 +4,7 @@
 
 CANVAS is where you paint production-grade Android apps. It lifts precise components (entities, use cases, repositories, ViewModels, Composables) and places them exactly where Clean Architecture says — anchored to a single authoritative quality bar, so a small team ships like a big one.
 
-**Status: Phase 0 — anchor & scaffold.** The repo holds the anchor documents and the Android family skeleton. Content is built from real friction in later phases (extract, don't predict).
+**Status: Phase 0 — anchor & scaffold.** The repo holds the anchor documents and the Android impl skeleton. Content is built from real friction in later phases (extract, don't predict).
 
 ## Read first
 
@@ -16,11 +16,11 @@ CANVAS is where you paint production-grade Android apps. It lifts precise compon
 
 ```
 process tier      lib/process/           universal — orchestration, gates, auditor, perf scorer
-family            lib/families/android/  native Android (strict Clean + Compose) — the single hero
+android           lib/android/           the HOW — native Android (strict Clean + Compose), done deeply
 cross-cutting     lib/cross-cutting/     the shared "what": API contract, checklists
 ```
 
-- **One family, done deeply.** Unlike full-stack CRUISE, CANVAS specializes in **native Android only** — the entire reference corpus, skills, and workers go deeper into one stack instead of staying shallow across many.
+- **One target, done deeply.** Unlike full-stack CRUISE, CANVAS specializes in **native Android only** — the entire impl corpus, skills, and workers go deeper into one stack instead of staying shallow across many. There is no "families" tier because there is only one stack; the `lib/android/` tier holds all the Android-specific "how".
 - **Share the *what*** (domain models + API contract) — **specialize the *how*** (Compose UI + strict Clean Android).
 - **Build the minimum, grow by recurrence** — heavier components are added only when real friction proves the need.
 - **Every scaffold is production-grade by default** — auth, DI, architecture, testing, accessibility, and release readiness are included, never bolted on.

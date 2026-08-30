@@ -30,7 +30,7 @@ This project only. Different project → STOP. New project → STOP and name `/b
 ## Search Protocol — never violate
 | Need | Use |
 |---|---|
-| A Term (what/how) | `section-query` `lib/families/android/reference/{domain,data,presentation}-impl.md` |
+| A Term (what/how) | `section-query` `lib/android/reference/{domain,data,presentation}-impl.md` |
 | A symbol / contract-generated type | `Grep` + `Read` (signatures before any call site) |
 | File exists? | `Glob` |
 Grep-first; one section; **read-once**. **Verify signatures before calling** — never assume names.
@@ -45,7 +45,7 @@ Follow the family's prescribed artifact order and call the matching skill for ea
 Contract-first: verify contract-generated symbols before any call site; never hand-author what the contract generates.
 
 ## Per-artifact workflow
-For each artifact: if the file exists → **edit directly**; else **call the skill** (resolve `lib/families/android/skills/<skill>/SKILL.md`, Read, follow). **Sibling-API verification** before any call site. Validate each locally (`Glob` + `Grep` + content marker) before the next artifact.
+For each artifact: if the file exists → **edit directly**; else **call the skill** (resolve `lib/android/skills/<skill>/SKILL.md`, Read, follow). **Sibling-API verification** before any call site. Validate each locally (`Glob` + `Grep` + content marker) before the next artifact.
 
 ## Rules
 Conform to the [Quality Bar](../../../QUALITY-BAR.md) + the family reference. When in doubt, ask the family reference — never invent.

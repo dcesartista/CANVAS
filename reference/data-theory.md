@@ -1,7 +1,7 @@
 # Data — theory
 
 > What the data layer IS and why. Family-agnostic — the single source of truth.
-> How, per stack: `reference/families/android/data-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §1, §2.
+> How, per stack: `../lib/android/reference/data-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §1, §2.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 The data layer is an **outer ring**: it implements the ports the domain owns (QUALITY-BAR §1) and is the only place that knows a transport or persistence technology. It depends on the domain; the domain never depends on it. Every Retrofit call, every Room query, every mapper lives here — translated at the boundary back into plain domain objects and domain-typed errors ([Google data layer](https://developer.android.com/topic/architecture/data-layer)).

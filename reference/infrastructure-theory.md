@@ -1,7 +1,7 @@
 # Infrastructure — theory
 
 > What the infrastructure (cross-cutting) ring IS and why. The assembly + operation of the app.
-> How, per stack: `reference/families/android/infrastructure-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §3, §4.
+> How, per stack: `../lib/android/reference/infrastructure-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §3, §4.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 Infrastructure holds **everything cross-cutting that makes the app assembled, configured, observable, and reachable** (QUALITY-BAR §3, §4): DI wiring, config, logging, analytics, crash reporting, networking plumbing, and time. It is the outer ring in scaffold-theory terms — layers depend on these services through injected abstractions (QUALITY-BAR §1), so the domain never sees a logger, a crash SDK, or an HTTP client.

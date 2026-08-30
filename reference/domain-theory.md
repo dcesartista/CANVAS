@@ -1,7 +1,7 @@
 # Domain — theory
 
 > What the domain layer IS and why. Family-agnostic — the single source of truth.
-> How, per stack: `reference/families/android/domain-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §1.
+> How, per stack: `../lib/android/reference/domain-impl.md`. Anchored to [QUALITY-BAR](../QUALITY-BAR.md) §1.
 > Read one Term via `section-query`: Grep `^## <Term>` → Read(offset, limit=N).
 
 The domain is the **pure inner core** of strict Clean (QUALITY-BAR §1): nothing but business meaning — entities, value objects, repository interfaces, use cases — in **pure Kotlin**, with zero `android.*` imports and zero framework types. Everything outward depends on it; it depends on nothing. This is exactly the split [Google App Architecture](https://developer.android.com/topic/architecture) recommends, so the app's meaning can be reasoned about — and tested — without a device.
