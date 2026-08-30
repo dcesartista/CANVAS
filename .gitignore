@@ -1,0 +1,25 @@
+# Gradle
+.gradle/
+build/
+local.properties
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Android
+captures/
+.externalNativeBuild/
+.cxx/
+
+# System
+.DS_Store
+*.log
+
+# Local extensions (agent runtime)
+.agentic.local/

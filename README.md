@@ -1,0 +1,34 @@
+# CANVAS
+
+> An agentic Android coding system — **Cesartista Android Native Verified App System** — for building world-class, production-grade native Android apps (Kotlin · Jetpack Compose) rapidly, by leveraging AI against an authoritative quality bar.
+
+CANVAS is where you paint production-grade Android apps. It lifts precise components (entities, use cases, repositories, ViewModels, Composables) and places them exactly where Clean Architecture says — anchored to a single authoritative quality bar, so a small team ships like a big one.
+
+**Status: Phase 0 — anchor & scaffold.** The repo holds the anchor documents and the Android family skeleton. Content is built from real friction in later phases (extract, don't predict).
+
+## Read first
+
+- **[QUALITY-BAR.md](QUALITY-BAR.md)** — the highest rule. The cited, measurable definition of "production-grade Android." Everything is measured against it.
+- **[CONVENTIONS.md](CONVENTIONS.md)** — how agents, skills, and reference docs are authored.
+- **[golden-tasks/](golden-tasks/)** — the frozen regression yardstick.
+
+## The model
+
+```
+process tier      lib/process/           universal — orchestration, gates, auditor, perf scorer
+family            lib/families/android/  native Android (strict Clean + Compose) — the single hero
+cross-cutting     lib/cross-cutting/     the shared "what": API contract, checklists
+```
+
+- **One family, done deeply.** Unlike full-stack CRUISE, CANVAS specializes in **native Android only** — the entire reference corpus, skills, and workers go deeper into one stack instead of staying shallow across many.
+- **Share the *what*** (domain models + API contract) — **specialize the *how*** (Compose UI + strict Clean Android).
+- **Build the minimum, grow by recurrence** — heavier components are added only when real friction proves the need.
+- **Every scaffold is production-grade by default** — auth, DI, architecture, testing, accessibility, and release readiness are included, never bolted on.
+
+## Governance
+
+- **[docs/evaluation/](docs/evaluation/)** — append-only friction log (what happened, evidence-ranked).
+- **[docs/initiatives/](docs/initiatives/)** — triaged candidates; promoted to action items only on real evidence.
+- **[golden-tasks/](golden-tasks/)** — re-run after every system change to catch regressions.
+
+Changes are batched, git-tagged per milestone, and re-validated against the golden tasks. The Quality Bar and conventions change deliberately, never silently.
