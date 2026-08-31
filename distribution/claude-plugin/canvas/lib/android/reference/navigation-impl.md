@@ -1,6 +1,6 @@
-# Android — navigation impl (Navigation Compose, type-safe)
+# Android — navigation impl (Navigation 3, type-safe)
 
-> How navigation Terms ([navigation-theory.md](../../navigation-theory.md)) are written in native Android with **Navigation Compose** (single-activity). Routes are **type-safe** (Kotlin serialization-based `@Serializable` routes, the modern API replacing string routes and `composable("path/{id}")`).
+> How navigation Terms ([navigation-theory.md](../../navigation-theory.md)) are written in native Android with **Navigation 3** (`androidx.navigation3`, state-driven, single-activity). Routes are **type-safe** (Kotlin serialization-based `@Serializable` routes, replacing string routes and `composable("path/{id}")`). Navigation Compose 2.x is only a fallback for a deep legacy graph; new graphs are Navigation 3.
 > **Rules (QUALITY-BAR §1, §4):** single `MainActivity` + one `NavHost`; navigation driven by UI state/events, never from inside content composables; auth destinations are deny-by-default behind a nav guard.
 
 ## Nav Graph <!-- 18 -->
@@ -34,7 +34,7 @@ A top-level branch that maps UI state/events to destinations. Screens never hold
 Start destination is chosen from auth state (see Nav Guard); subsequent auth-driven redirects are emitted as events collected in the router.
 
 ## Nav Arguments <!-- 8 -->
-Forward declared on the `@Serializable` route class; Navigation Compose encodes them into the route. Use immutable `val`s (no defaults for required args) and pass them via `toRoute<T>()` in the destination.
+Forward declared on the `@Serializable` route class; Navigation 3 encodes them into the route. Use immutable `val`s (no defaults for required args) and pass them via `toRoute<T>()` in the destination.
 ```kotlin
 @Serializable data class SearchRoute(val query: String = "", val cursor: String? = null)
 composable<SearchRoute> { entry -> SearchScreen(entry.toRoute<SearchRoute>()) }
@@ -60,7 +60,7 @@ composable<DeepProductRoute>(
     ("https://example.com/products/{productId}")),
 ) { entry -> ProductDetailScreen(entry.toRoute<DeepProductRoute>().productId) }
 ```
-Enable via the `<intent-filter>` in `AndroidManifest.xml` plus `assetlinks.json` for the domain; Navigation Compose handles the `PendingIntent`/`Intent` automatically and pops the back stack to the deep target in place.
+Enable via the `<intent-filter>` in `AndroidManifest.xml` plus `assetlinks.json` for the domain; Navigation 3 handles the `PendingIntent`/`Intent` automatically and pops the back stack to the deep target in place.
 
 ## Bottom Navigation <!-- 21 -->
 Material 3 `NavigationBar` with `NavigationBarItem`s drives a **nested graph** (one top-level route, child screens beneath it). Current destination tracked via `currentBackStackEntryAsState()` to highlight the active tab.

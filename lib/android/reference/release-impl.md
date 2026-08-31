@@ -29,12 +29,12 @@ agp = { id = "com.android.application", version.ref = "agp" }
 Add `baselineprofile-gradle-plugin`, `kotlin-android`, `kotlin-kapt-compat`/`ksp` as plugins; pin everything so builds are reproducible.
 
 ## App Build Script <!-- 22 -->
-The `:app/build.gradle.kts` wires application config, Compose BOM, KSP for Room/Hilt, and R8. `namespace`, `minSdk 26`, `compileSdk`/`targetSdk` latest; `buildConfig` fields come from env (never secrets in source).
+The `:app/build.gradle.kts` wires application config, Compose BOM, KSP for Room/Hilt, and R8. `namespace`, `minSdk 34`, `compileSdk`/`targetSdk` latest stable (37 for AGP 9/Compose 1.12); `buildConfig` fields come from env (never secrets in source).
 ```kotlin
 plugins { alias(libs.plugins.agp); alias(libs.plugins.kotlin.android); alias(libs.plugins.ksp) }
 android {
-  namespace = "com.example.canvas"; compileSdk = 35
-  defaultConfig { applicationId = "com.example.canvas"; minSdk = 26; targetSdk = 35
+  namespace = "com.example.canvas"; compileSdk = 37
+  defaultConfig { applicationId = "com.example.canvas"; minSdk = 34; targetSdk = 36
     versionCode = 42; versionName = "1.4.2" }
   buildFeatures { compose = true; buildConfig = true }
   buildTypes {

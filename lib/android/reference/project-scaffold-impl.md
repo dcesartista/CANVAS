@@ -1,7 +1,7 @@
 # Android — project scaffold impl (full spec)
 
 > The exhaustive, authoritative spec of the CANVAS **native Android** scaffold — the "bring-up" blueprint. Same `##` Terms as [project-scaffold-theory.md](../../project-scaffold-theory.md), but expressed in real Kotlin/Compose/Gradle.
-> Stack (QUALITY-BAR): Kotlin · Jetpack Compose (Material 3) · Hilt · Coroutines/Flow · Retrofit + kotlinx.serialization · Room · Navigation Compose · EncryptedSharedPreferences · JUnit5/Turbine/MockWebServer. Single-activity, strict Clean.
+> Stack (QUALITY-BAR): Kotlin · Jetpack Compose (Material 3) · Hilt · Coroutines/Flow · Retrofit + kotlinx.serialization · Room · Navigation 3 · Keystore+Tink token storage · JUnit5/Turbine/MockWebServer. Single-activity, strict Clean.
 
 ## Module Layout <!-- 13 -->
 Start **single-module** (`:app`), packaged by layer (Google: don't over-modularize a small app); split into `:app`/`:core:domain`/`:core:data` only when builds or layering enforcement warrant it. The layer split keeps `domain` compiling as pure Kotlin (no `kotlin-android`), which enforces QUALITY-BAR §1 at the compiler.
@@ -85,7 +85,7 @@ class AuthInterceptor @Inject constructor(private val store: TokenStore) : Inter
   }
 }
 ```
-`TokenStore` reads/writes `EncryptedSharedPreferences` (Keystore-backed) — never plain prefs for the access/refresh pair (QUALITY-BAR §4).
+`TokenStore` reads/writes **encrypted storage under the Android Keystore via Tink** (not deprecated `EncryptedSharedPreferences`) — never plain prefs for the access/refresh pair (QUALITY-BAR §4).
 
 ## Database Baseline <!-- 13 -->
 Room with one `@Database` exposing DAOs; schema exported to `schemas/` for migration tests; forward-only `@Migration`s; `@Transaction` for multi-row writes. Entities/DAOs live in `data`; domain never sees them.

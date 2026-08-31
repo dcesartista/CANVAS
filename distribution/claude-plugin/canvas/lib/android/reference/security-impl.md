@@ -3,21 +3,20 @@
 > How the security Terms ([security-theory.md](../../security-theory.md)) are implemented in native Android against **OWASP ASVS 5.0 Level 2** (QUALITY-BAR §4, §7).
 > **Rules (QUALITY-BAR §4):** tokens in Keystore-backed secure storage; short-lived rotating tokens; Bearer attached once via interceptor; 401 → single-flight refresh with `Mutex`; deny-by-default navigation; TLS everywhere with cleartext blocked; typed layer validation; secrets never in `BuildConfig`/VCS; logging redacts credentials.
 
-## Secure Token Storage <!-- 16 -->
-Tokens live in **Keystore-backed encrypted storage**, never plain `SharedPreferences`, never an unencrypted file, never readable by another app (QUALITY-BAR §4). `EncryptedSharedPreferences` (or Encrypted DataStore) transparently encrypts values under the Android Keystore with keys scoped to this app, so a device with physical access cannot read the token from storage. Access via a typed `TokenStore` so the rest of the app never touches ciphertext directly.
+## Secure Token Storage <!-- 15 -->
+Tokens live in **Keystore-backed encrypted storage**, never plain `SharedPreferences`, never an unencrypted file, never readable by another app (QUALITY-BAR §4). The deprecated `security-crypto`/`EncryptedSharedPreferences` path is **not used**; the modern control is a **Google Tink AEAD** encryption scheme whose key stays inside the Android **Keystore** scoped to this app, so a device with physical access cannot read the token from storage. Access via a typed `TokenStore` so the rest of the app never touches ciphertext directly.
 ```kotlin
 @Provides @Singleton fun provideTokenStore(context: Context): TokenStore {
+  // key lives in the Android Keystore, never extractable by other apps
   val masterKey = MasterKey.Builder(context)
     .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
-  val prefs = EncryptedSharedPreferences.create(
-    context, "secure_token_store", masterKey,
-    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-  )
-  return EncryptedTokenStore(prefs) // get/set access + refresh, never plain
+  // Tink AEAD encrypts from the Keystore-backed key; byte[] is the ciphertext
+  val aead = AeadFactory.getPrimitive(masterKey)
+  return TinkEncryptedTokenStore(aead)        // get/set access + refresh, never plain
 }
+// with a Proto DataStore: datastore <-> Tink AEAD gives typed at-rest encryption
 ```
-Storage is assumed readable by an attacker with the device in hand; Keystore-backed encryption at rest is the control.
+Storage is assumed readable by an attacker with the device in hand; Keystore-backed Tink encryption at rest is the control.
 
 ## Token Lifecycle <!-- 20 -->
 Tokens are **short-lived and rotating** (QUALITY-BAR §4, NIST): the access token lives minutes, the refresh token persists and rotates on every use. A stolen access token is a minutes-long window, and a rotating refresh token invalidates its predecessor, making a stolen one a one-time asset. Logout **revokes server-side and clears all stored credentials** — local deletion alone leaves a ghost account.

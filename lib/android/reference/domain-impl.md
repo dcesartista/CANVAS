@@ -106,7 +106,7 @@ val <T> Page<T>.hasMore get() = nextCursor != null
 `Page` shapes collections at the data boundary; `Result` carries outcomes. Keep both in domain so use cases and ViewModels depend only on stable, tested types.
 
 ## Compatibility <!-- 9 -->
-`minSdk 26+` (QUALITY-BAR §1) lets `domain` use `java.time.*`/`kotlin.time` and standard-library features without desugaring surprises; keep the module compiled with `jvmTarget 17` to match the app. Avoid `androidx.annotation.*` in favor of Kotlin-stdlib constraints so the layer stays framework-clean and runs on a plain JVM in `testDebugUnitTest`.
+`minSdk 34+` (QUALITY-BAR §1) lets `domain` use `java.time.*`/`kotlin.time` and standard-library features without desugaring surprises; keep the module compiled with `jvmTarget 17` to match the app. Avoid `androidx.annotation.*` in favor of Kotlin-stdlib constraints so the layer stays framework-clean and runs on a plain JVM in `testDebugUnitTest`.
 ```kotlin
 // :domain/build.gradle.kts — no android plugin, pure kotlin
 plugins { kotlin("jvm") }

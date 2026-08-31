@@ -7,13 +7,13 @@
 - [ ] Strict Clean: `domain` pure Kotlin — zero `android.*` imports (forbidden-import rule on).  (§1)
 - [ ] Dependency rule: UI/data → domain abstractions only.  (§1)
 - [ ] UDF: state flows one way; ViewModel reduces; `collectAsStateWithLifecycle` renders.  (§1)
-- [ ] `minSdk 26+`, `targetSdk` latest, single-activity + Navigation Compose.  (§1)
+- [ ] `minSdk 34+`, `targetSdk` latest, single-activity + Navigation 3.  (§1)
 
 ## 2. Data & persistence
 - [ ] Room entities ↔ DTOs mapped in `data`; no leak into `domain`.  (§2)
 - [ ] Forward-only migrations; schema versioned/exported.  (§2)
 - [ ] Retrofit + OkHttp + kotlinx.serialization; sealed results across boundaries.  (§2)
-- [ ] Secrets in DataStore/EncryptedSharedPreferences, never plain SharedPreferences.  (§2)
+- [ ] Secrets in Keystore-backed Tink storage (Proto DataStore), never plain SharedPreferences / deprecated EncryptedSharedPreferences.  (§2)
 
 ## 3. API, contract & concurrency
 - [ ] Spec-first OpenAPI 3.1; client generated — no hand-written DTOs.  (§3)

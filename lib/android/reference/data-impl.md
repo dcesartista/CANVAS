@@ -126,7 +126,7 @@ interface CartDao {
 Room semantics: delete-then-insert inside `@Transaction` keeps a partially-failed "replace" from leaving a corrupt cart. Gaps allowed: keep `update`/`production.upgrade` minimal.
 
 ## Network & Auth <!-- 12 -->
-OkHttp client with a **Bearer interceptor** attaching the access token and an `Authenticator` that refreshes on **401** (single-flight) then retries; tokens live in an **EncryptedSharedPreferences**-backed store, never plain prefs (QUALITY-BAR §4).
+OkHttp client with a **Bearer interceptor** attaching the access token and an `Authenticator` that refreshes on **401** (single-flight) then retries; tokens live in a **Keystore-backed Tink store** (not deprecated `EncryptedSharedPreferences`), never plain prefs (QUALITY-BAR §4, security-impl).
 ```kotlin
 class AuthInterceptor(private val store: TokenStore) : Interceptor {
   override fun intercept(chain: Interceptor.Chain) = chain.proceed(
