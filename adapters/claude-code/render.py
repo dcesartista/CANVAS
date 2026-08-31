@@ -90,7 +90,9 @@ def _agent_front_matter(meta: dict) -> str:
     out = "---\n"
     out += _yaml_scalar("name", meta["id"])
     out += _yaml_scalar("description", meta["description"])
-    out += _yaml_scalar("model", meta.get("model") or "sonnet")
+    model = meta.get("model")
+    if model:
+        out += _yaml_scalar("model", model)
     out += _yaml_scalar("mode", "subagent")
     out += _yaml_scalar("tools", "Read, Write, Edit, Glob, Grep, Bash")
     out += "---\n"
@@ -102,7 +104,7 @@ def _meta(manifest_entry: dict, core_file: Path) -> dict:
     merged = dict(manifest_entry)
     merged.setdefault("id", manifest_entry["id"])
     merged.setdefault("description", src.get("description", ""))
-    merged.setdefault("model", src.get("model", "sonnet"))
+    merged.setdefault("model", src.get("model"))  # absent => subagent uses default model
     return merged
 
 

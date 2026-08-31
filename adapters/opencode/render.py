@@ -44,13 +44,15 @@ def _skill_front_matter(meta):
 
 
 def _agent_front_matter(meta):
-    return (
+    out = (
         "---\n"
         + _yaml_scalar("description", meta["description"])
         + _yaml_scalar("mode", "subagent")
-        + _yaml_scalar("model", meta["model"])
-        + "---\n"
     )
+    model = meta.get("model")
+    if model:
+        out += _yaml_scalar("model", model)
+    return out + "---\n"
 
 
 def _body(core_path):
@@ -85,7 +87,7 @@ def _meta(manifest_entry, core_file):
     src = _front_matter(core_file)
     merged = dict(manifest_entry)
     merged.setdefault("description", src.get("description", ""))
-    merged.setdefault("model", src.get("model", "sonnet"))
+    merged.setdefault("model", src.get("model"))  # absent => subagent inherits the invoking primary agent's model
     return merged
 
 

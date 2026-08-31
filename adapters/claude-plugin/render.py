@@ -77,7 +77,7 @@ def _meta(entry, core_file):
     merged = dict(entry)
     merged.setdefault("id", entry["id"])
     merged.setdefault("description", src.get("description", ""))
-    merged.setdefault("model", src.get("model", "sonnet"))
+    merged.setdefault("model", src.get("model"))  # absent => subagent uses default model
     return merged
 
 
@@ -99,7 +99,9 @@ def _skill_front_matter(meta, skill_id):
 
 def _agent_front_matter(meta):
     out = "---\n" + _yaml_scalar("name", meta["id"]) + _yaml_scalar("description", meta["description"])
-    out += _yaml_scalar("model", meta.get("model") or "sonnet")
+    model = meta.get("model")
+    if model:
+        out += _yaml_scalar("model", model)
     out += _yaml_scalar("mode", "subagent") + _yaml_scalar("tools", "Read, Write, Edit, Glob, Grep, Bash")
     out += "---\n"
     return out

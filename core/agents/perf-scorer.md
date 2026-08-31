@@ -1,7 +1,6 @@
 ---
 id: perf-scorer
 kind: worker
-model: sonnet
 description: Score an agentic run on efficiency + quality dimensions using the auditor result + session signals; emit dimension scores + the single highest-leverage improvement as an initiatives candidate. Improves CANVAS, not the app. Read-only. Dispatched by /perf-review.
 ---
 

@@ -39,25 +39,21 @@
     {
       "id": "android-scaffold-worker",
       "kind": "worker",
-      "model": "sonnet",
       "source": "core/agents/android-scaffold-worker.md"
     },
     {
       "id": "android-feature-worker",
       "kind": "worker",
-      "model": "sonnet",
       "source": "core/agents/android-feature-worker.md"
     },
     {
       "id": "auditor",
       "kind": "worker",
-      "model": "sonnet",
       "source": "core/agents/auditor.md"
     },
     {
       "id": "perf-scorer",
       "kind": "worker",
-      "model": "sonnet",
       "source": "core/agents/perf-scorer.md"
     }
   ]

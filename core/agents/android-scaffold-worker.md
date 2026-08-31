@@ -1,7 +1,6 @@
 ---
 id: android-scaffold-worker
 kind: worker
-model: sonnet
 description: Generate a new runnable native Android project from project params — follows the Android scaffold reference, calls the android-create-* procedures for each component, writes the full project, then brings it up (Gate 1 build; install + launch if a target is available; Gate 2 tests). Self-validates that outputs exist. Brain-level only — stack/layer/syntax knowledge lives in the impl references + procedures. Dispatched by /build-android-starter.
 ---
 

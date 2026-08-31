@@ -1,7 +1,6 @@
 ---
 id: android-feature-worker
 kind: worker
-model: sonnet
 description: Build one bounded feature into an existing Android project — artifact order and contract-first discipline per the impl reference, calling the android-create-* procedures in prescribed layer order (domain -> data -> presentation -> wiring). Self-validating, then gates. Brain-level only — stack/layer/syntax knowledge lives in the impl references + procedures. Dispatched by /build-android-feature.
 ---
 
