@@ -89,6 +89,18 @@ The impl corpus lives in `lib/android/reference/*-impl.md` (Clean architecture, 
 
 Skills route intent to **workers** (subagents) that read the corpus and build; **gates** (build = Gate 1, tests = Gate 2) and the **auditor** (validation Gate 3, scoring against the Quality Bar) and the **perf scorer** verify the result before it's declared done.
 
+## Sibling projects
+
+CANVAS is Android-native but shares two **host-agnostic / swappable** sibling
+repos (referenced, never vendored):
+
+- **`palette`** — the framework-agnostic design-token & component contract (`docs/0001-ui-token-contract.md`, `docs/0002-component-inventory.md`).
+- **`ui-default`** — the Android/Compose implementation of that contract: the swappable default "look" (T3 tokens, `DefaultPalette`, `CanvasTheme`, and the component set). Screens are built from `ui-default` components, never hand-rolled M3.
+
+`ui-default` can be deleted/replaced and another palette dropped in without
+touching components — while the core-correctness floor (a11y, 48dp touch,
+contrast) stays in CANVAS and is never themeable.
+
 ## Read first
 
 - **[QUALITY-BAR.md](QUALITY-BAR.md)** — the highest rule. The cited, measurable definition of "production-grade Android." Everything is measured against it.

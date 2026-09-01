@@ -17,12 +17,11 @@ app/src/main/res/     values/ (themes, strings, colors) · xml/ (network_securit
 `domain` has **zero** `android.*` imports (detekt `forbidden-import`, see domain-impl); `data` may import android only for Room/Context-backed stores; `ui` depends on both.
 
 ## Package Layout <!-- 10 -->
-Feature-first at `ui/<feature>/`: one folder per screen flow, containing its `*ViewModel` and its `*Screen`/`*Content` composables plus the feature-specific `UiState`/`UiEvent`. Shared cross-cutting (theme, navigation, common components) live at `ui/theme`, `ui/navigation`, `ui/components`.
+Feature-first at `ui/<feature>/`: one folder per screen flow, containing its `*ViewModel` and its `*Screen`/`*Content` composables plus the feature-specific `UiState`/`UiEvent`. Shared cross-cutting (navigation, guards) live at `ui/navigation`. The **theme and the component set are NOT vendored per-project** — they come from the swappable `ui-default` library (see `## Theme & Design Tokens` below).
 ```
 ui/home/       HomeViewModel.kt · HomeScreen.kt · HomeUiState.kt
 ui/cart/       CartViewModel.kt · CartScreen.kt
 ui/navigation/ AppNavHost.kt · Routes.kt · AuthGuard.kt
-ui/theme/      Color.kt · Theme.kt · Type.kt
 ```
 All classes are `internal` by default within a package unless exported across packages; keep feature packages decoupled from each other (they talk only via domain use cases, not via other features' ViewModels).
 
@@ -127,14 +126,12 @@ tasks.register<JavaExec>("genContract") {
 Regeneration is base64-stable/no-op when the contract is unchanged; commit the generated sources so CI doesn't rebuild against a moving spec.
 
 ## Theme & Design Tokens <!-- 10 -->
-Compose UI (Material 3): dynamic color on Android 12+ with brand light/dark fallback; all sizes/colors as Material tokens, no raw `px`/hex in components (QUALITY-BAR §5). Type set in `ui/theme/Type.kt`; nav bar, top bars, and components use `MaterialTheme`.
+Compose UI consumes the **swappable `ui-default` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ui.default.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); no per-project `ui/theme/` color/type files.
 ```kotlin
-val LocalDp = staticCompositionLocalOf { DpTokens() }        // spacing/radius tokens
-@Composable fun DefaultTokens() = MaterialTheme(
-  colorScheme = if (dynamicColor) dynamicLightColorScheme(LocalContext.current) else LightColors,
-  typography = Typography, content = content())
+import com.canvas.ui.default.palette.CanvasTheme
+@Composable fun DefaultTokens() = CanvasTheme { content() }
 ```
-Component files consume `MaterialTheme.colorScheme.surface` etc., so dark mode and dynamic color propagate app-wide without per-screen colors.
+To rebrand, pass a different `Palette` (e.g. `CanvasTheme(palette = myPalette)`); components are not re-themed in place. Type/size/color tokens live in ui-default's T3 `token/` layer, realized from `ui-default/CONSUMING.md`'s dependency pathway (composite build/submodule or published Maven).
 
 ## Bring-up <!-- 14 -->
 A "running instance" = a **debug APK installed on an emulator/device**, or a green build when no device is available. Concrete steps the worker takes from a clean checkout:

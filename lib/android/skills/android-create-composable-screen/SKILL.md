@@ -18,9 +18,10 @@ Create one **Screen**. Create-only — if it exists, STOP.
 2. Write `ui/<feature>/<Screen>Screen.kt`:
    - `@Composable`; collects UI state **lifecycle-aware**; renders the state; forwards events to the ViewModel — no business logic in the composable.
    - split into a stateless content composable for previews/tests.
+   - **build from the swappable UI library `ui-default`** (the agnostic Palette contract realized in Compose) — use its components (`CanvasButton`, `CanvasCard`, `CanvasTextField`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasListItem`, `CanvasEmptyState`, `CanvasErrorState`, `CanvasSnackbar`, `CanvasProgress`) and never raw `MaterialTheme` primitives. See `lib/android/reference/presentation-impl.md` → `## ui-default`. If a screen needs a compound that ui-default lacks, compose it from existing components (T3 tokens) instead of hand-rolling M3 widgets.
    - accessibility: content descriptions / semantics; touch targets ≥48dp; correct focus order ([QUALITY-BAR](../../../../../QUALITY-BAR.md) §5).
 3. Performance: keys on lazy lists, stable models, no work on the main thread ([QUALITY-BAR](../../../../../QUALITY-BAR.md) §5).
 4. Register/confirm the route via `android-create-navigation`.
 
 ## Output
-`Glob` + `Grep`; confirm lifecycle-aware collection + no logic in the composable.
+`Glob` + `Grep`; confirm lifecycle-aware collection + no logic in the composable + no raw M3 widgets outside ui-default's component set.
