@@ -21,7 +21,7 @@ Navigation is **state, not action**. Where the user is amounts to a value the ap
 ## Nav Guard <!-- 3 -->
 **Deny-by-default gating driven by state** (QUALITY-BAR §4). A protected destination is unreachable unless an explicit condition permits it; it is never "safe" merely because the only link to it sits behind a login screen. The guard is evaluated as part of resolving the destination, not after the screen has begun rendering — a protected screen that draws once before redirecting has already leaked.
 
-## Single Source Of Truth <!-- 3 -->
+## Single Source of Truth <!-- 3 -->
 **One authority for current location.** Nested graphs, tab state, and dialogs all resolve from the same structure; a second parallel notion of "where we are" guarantees divergence. When location is single-sourced, restoring state is replaying one value.
 
 ## Nested Graph <!-- 3 -->

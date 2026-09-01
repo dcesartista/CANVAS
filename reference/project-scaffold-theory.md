@@ -42,7 +42,7 @@ Minimum security hygiene is in the skeleton (QUALITY-BAR §4): cleartext blocked
 ## Release Baseline <!-- 3 -->
 The release path is **present and green before the first feature** (QUALITY-BAR §7): AAB packaging, R8 minification with verified rules, versioned reproducible builds, a baseline profile regenerated per release, and a keystore loaded from CI secrets — never VCS. Deciding versioning and signing once, at scaffold time, is what makes a real release a non-event later.
 
-## Bring-Up <!-- 3 -->
+## Bring-up <!-- 3 -->
 The scaffold documents **how to run everything**: one local-machine path (`./gradlew` + local emulator) and one scripted path, from `start` (dependencies) to an installed running app (QUALITY-BAR §7). "Bring it up" is a fixed sequence in the README, verified by a fresh-clone test. Unwritten bring-up is the #1 cause of "works on my machine" onboarding — for new joiners and for agents alike.
 
 ## CI Gates <!-- 3 -->

@@ -1,6 +1,6 @@
 ---
 name: android-create-dto
-description: Create a Data Transfer Object in the Android family's data tier — only when the contract client does NOT already generate the payload type (contract-first guardrail).
+description: Create a Data Transfer Object in the Android data layer — only when the contract client does NOT already generate the payload type (contract-first guardrail).
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

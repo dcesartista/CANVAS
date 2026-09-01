@@ -1,6 +1,6 @@
 ---
 name: android-create-value-object
-description: Create a domain Value Object (immutable, equality by value, invalid state unrepresentable) in the Android family's domain tier.
+description: Create a domain Value Object (immutable, equality by value, invalid state unrepresentable) in the Android domain layer.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 ---

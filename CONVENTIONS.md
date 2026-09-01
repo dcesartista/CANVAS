@@ -43,14 +43,14 @@ The single source of architectural knowledge, read on demand — never embedded 
 
 | Component | Location | Role | Must contain |
 |---|---|---|---|
-| **Workflow skill** | `lib/process/skills/` | User entry point — routes, loads context, spawns | single user-facing task; owns the workflow |
+| **Workflow skill** | `core/skills/` (host-neutral source; rendered per host) | User entry point — routes, loads context, spawns | single user-facing task; owns the workflow |
 | **Worker** | `core/agents/` (host-neutral source; rendered per host) | Reads plan → calls procedure skills → writes code → self-validates | `## Input`, `## Scope`, `## Search Protocol`, `## Output` (Glob+Grep verified) |
 | **Procedure skill** | `lib/android/skills/` | Thin, **create-only** "hands" for one artifact type | one task, references reference docs, no branching |
 | **Reference doc** | `reference/` + `lib/android/reference/` | Theory + deep Android impl (§3) | grep-addressable `## Term <!-- N -->` headings |
 | **Planner** *(add when features span ≥3 layers)* | `lib/android/planners/` | Explores one layer read-only, reports findings + impact | read-only tools only |
-| **Orchestrator** *(add with planners)* | `lib/process/agents/` | Brain-only — returns decision blocks, spawns nothing, writes only plan artifacts | structured `Decision:` blocks |
-| **Auditor** *(Phase 3)* | `lib/process/agents/` | Scores output against the Quality Bar | per-§ pass/partial/fail |
-| **Perf scorer** *(Phase 3)* | `lib/process/agents/` | Scores session efficiency/quality across versions | metrics |
+| **Orchestrator** *(add with planners)* | `core/agents/` | Brain-only — returns decision blocks, spawns nothing, writes only plan artifacts | structured `Decision:` blocks |
+| **Auditor** *(Phase 3)* | `core/agents/` | Scores output against the Quality Bar | per-§ pass/partial/fail |
+| **Perf scorer** *(Phase 3)* | `core/agents/` | Scores session efficiency/quality across versions | metrics |
 
 > Day-1 minimum = workflow skill + worker + procedure skills + reference. Orchestrator/planners are deferred until cross-layer planning pain is felt.
 

@@ -1,6 +1,6 @@
 ---
 name: android-create-datastore
-description: Create a Room datastore (entity + DAO) in the Android family's data tier — structured, relational, forward-only migrations.
+description: Create a Room datastore (entity + DAO) in the Android data layer — structured, relational, forward-only migrations.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

@@ -40,7 +40,7 @@ data class ProductListUiState(
 ```
 Annotate `@Immutable` (Compose) so recomposition skips stable fields. For distinct screens prefer a `sealed interface` (e.g. `Loading`/`Content`/`Error`) and `when` in the screen.
 
-## One-shot Event <!-- 13 -->
+## One-Shot Event <!-- 13 -->
 Transient occurrences (toasts, navigate after login, snackbars) that must **not** survive rotation are delivered once via a `Channel`/`SharedFlow` and replayed with `replay=0`. They are separate from `uiState` (state is for rendering; events are for one-time side effects).
 ```kotlin
 private val _events = Channel<UiEvent>(Channel.BUFFERED)

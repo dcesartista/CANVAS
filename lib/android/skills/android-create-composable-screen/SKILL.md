@@ -1,6 +1,6 @@
 ---
 name: android-create-composable-screen
-description: Create a Compose Screen bound to a ViewModel in the Android family (dumb, lifecycle-aware, accessible).
+description: Create a Compose Screen bound to a ViewModel in the Android stack (dumb, lifecycle-aware, accessible).
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

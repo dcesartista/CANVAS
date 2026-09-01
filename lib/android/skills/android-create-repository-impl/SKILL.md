@@ -1,6 +1,6 @@
 ---
 name: android-create-repository-impl
-description: Create a Repository Implementation of a domain port in the Android family's data tier — composes datasources + mappers, offline-first, returns domain types via Flow.
+description: Create a Repository Implementation of a domain port in the Android data layer — composes datasources + mappers, offline-first, returns domain types via Flow.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

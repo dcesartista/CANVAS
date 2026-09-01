@@ -1,6 +1,6 @@
 ---
 name: android-create-domain-entity
-description: Create a pure-Kotlin domain Entity (identity-based, invariant-enforcing) in the Android family's domain tier.
+description: Create a pure-Kotlin domain Entity (identity-based, invariant-enforcing) in the Android domain layer.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 ---

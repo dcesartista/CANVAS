@@ -1,6 +1,6 @@
 ---
 name: android-create-hilt-module
-description: Create/extend a Hilt DI module in the Android family — interface→impl bindings with explicit scope; no manual construction in production code.
+description: Create/extend a Hilt DI module in the Android stack — interface→impl bindings with explicit scope; no manual construction in production code.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

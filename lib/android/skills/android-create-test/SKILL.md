@@ -1,6 +1,6 @@
 ---
 name: android-create-test
-description: Create unit + UI tests for an artifact in the Android family — fakes over mocks, ≥75% coverage on new code, semantics-based UI assertions.
+description: Create unit + UI tests for an artifact in the Android stack — fakes over mocks, ≥75% coverage on new code, semantics-based UI assertions.
 user-invocable: false
 tools: Read, Write, Glob, Grep, Bash
 related_skills:

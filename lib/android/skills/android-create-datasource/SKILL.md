@@ -1,6 +1,6 @@
 ---
 name: android-create-datasource
-description: Create a Data Source (remote or local boundary) in the Android family's data tier — suspend/Flow, explicit dispatcher boundary, no blocking.
+description: Create a Data Source (remote or local boundary) in the Android data layer — suspend/Flow, explicit dispatcher boundary, no blocking.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

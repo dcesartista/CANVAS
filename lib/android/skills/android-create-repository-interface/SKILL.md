@@ -1,6 +1,6 @@
 ---
 name: android-create-repository-interface
-description: Create a domain Repository Interface (port) in the Android family — domain types only, suspend + Flow.
+description: Create a domain Repository Interface (port) in the Android stack — domain types only, suspend + Flow.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

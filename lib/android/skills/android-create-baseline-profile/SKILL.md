@@ -1,6 +1,6 @@
 ---
 name: android-create-baseline-profile
-description: Create/wire the baseline profile in the Android family — startup + hot paths, regenerated per release, shipped in the release build.
+description: Create/wire the baseline profile in the Android stack — startup + hot paths, regenerated per release, shipped in the release build.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 ---

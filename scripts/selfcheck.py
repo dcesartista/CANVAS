@@ -108,6 +108,26 @@ def check_terms() -> list[str]:
     return problems
 
 
+def check_canonical() -> list[str]:
+    """One concept = one Term spelling (CONVENTIONS §3).
+
+    Terms are the corpus's addressing scheme: an agent Greps `^## <Term>`, so
+    two spellings of one concept means half the lookups miss.
+    """
+    import collections
+
+    seen = collections.defaultdict(set)
+    for f in corpus_files():
+        for _, term, _, _ in _sections(f.read_text().splitlines()):
+            seen[term.lower()].add((term, str(f.relative_to(ROOT))))
+    problems: list[str] = []
+    for variants in seen.values():
+        if len({t for t, _ in variants}) > 1:
+            rendered = "; ".join(f"'{t}' in {f}" for t, f in sorted(variants))
+            problems.append(f"one concept spelled several ways -> {rendered}")
+    return problems
+
+
 def check_links() -> list[str]:
     problems: list[str] = []
     for f in all_markdown():
@@ -168,6 +188,7 @@ def check_grants() -> list[str]:
 CHECKS = {
     "sections": check_sections,
     "terms": check_terms,
+    "canonical": check_canonical,
     "links": check_links,
     "grants": check_grants,
 }

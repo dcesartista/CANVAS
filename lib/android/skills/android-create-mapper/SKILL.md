@@ -1,6 +1,6 @@
 ---
 name: android-create-mapper
-description: Create a Mapper (DTO/Room ↔ domain) in the Android family's data tier — pure, one direction each, no side effects.
+description: Create a Mapper (DTO/Room ↔ domain) in the Android data layer — pure, one direction each, no side effects.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

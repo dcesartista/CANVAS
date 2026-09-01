@@ -69,7 +69,7 @@ def _reference_root(root: Path, global_install: bool) -> str:
 
 
 def _with_reference_preamble(body: str, root: Path, siblings: dict | None = None) -> str:
-    line = f"{MARKER} CANVAS reference corpus root: {root} (read-only; lib/android/reference/*-impl.md, lib/android/skills/, lib/process/)."
+    line = f"{MARKER} CANVAS reference corpus root: {root} (read-only; lib/android/reference/*-impl.md, lib/android/skills/, lib/process/gates/)."
     for name, info in (siblings or {}).items():
         loc = info.get("path") or info.get("url")
         if loc:

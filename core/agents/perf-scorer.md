@@ -15,7 +15,7 @@ scaffold · feature · fix · flag-removal · realignment. Score only dimensions
 
 ## Step 2 — Score each dimension (0–10 + one-line note)
 - **D1 Architecture conformance** — carry the auditor's Quality-Bar score (×10).
-- **D2 Skill/worker usage** — right entry skill + worker for the artifacts; the artifact order respected; no tier bypass (a process skill didn't reach into a family's internals).
+- **D2 Skill/worker usage** — right entry skill + worker for the artifacts; the artifact order respected; no tier bypass (a process-tier component didn't reach into the Android tier's internals).
 - **D3 Token efficiency** — search-first (read:search ratio < 3); cache-friendly; **0** duplicate reads; no whole-tree loads.
 - **D4 Routing** — correct workflow for the request (starter vs feature vs audit vs perf-review); no wrong hand-offs.
 - **D5 Workflow compliance** — gates run in order (Gate 1 typecheck/build · Gate 2 tests · Gate 3 audit); **no skipped gate; no `--no-verify`**.

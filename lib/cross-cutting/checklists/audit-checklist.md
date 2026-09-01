@@ -1,7 +1,7 @@
 # Audit checklist — the Quality Bar as checkable items
 
 > A checklist form of [QUALITY-BAR](../../../QUALITY-BAR.md) for the **auditor** to verify mechanically. One item per rule; fill pass/partial/fail + file:line evidence.
-> This lives in cross-cutting because the checklist itself is universal; the concrete syntax/commands are per-stack (family).
+> This lives in cross-cutting because the checklist itself is universal; the concrete syntax/commands live in the Android tier.
 
 ## 1. Architecture
 - [ ] Strict Clean: `domain` pure Kotlin — zero `android.*` imports (forbidden-import rule on).  (§1)
