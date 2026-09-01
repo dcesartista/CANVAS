@@ -109,7 +109,66 @@ def _collect_siblings(args) -> dict:
     return sib
 
 
+def _record_install(args, manifest: dict, root: Path, target: Path) -> None:
+    """Record a successful export in ~/.canvas/installed.json so `update` can
+    replay the same scope/hosts/repo sources later. Only recorded when a repo
+    URL is known (the curl-installer path); ad-hoc local exports stay out."""
+    repo = getattr(args, "repo", None)
+    if not repo:
+        from_ = getattr(args, "from_", None)
+        if from_ and (str(from_).startswith("git@") or str(from_).endswith(".git") or "github.com:" in str(from_)):
+            repo = from_
+    if not repo:
+        return
+
+    state = _load_state()
+    state.setdefault("installs", [])
+    rec = {
+        "scope": "global" if args.global_ else "project",
+        "target": "global" if args.global_ else str(target),
+        "host": args.host,
+        "repo": repo,
+        "siblings": {k: v.get("url") or v.get("path") for k, v in manifest.get("_siblings", {}).items() if v.get("url") or v.get("path")},
+        "commit": _git_head(root),
+        "version": manifest.get("_canvas_version", ""),
+    }
+    for i, existing in enumerate(state["installs"]):
+        if existing.get("scope") == rec["scope"] and existing.get("target") == rec["target"] and existing.get("host") == rec["host"]:
+            state["installs"][i] = rec
+            break
+    else:
+        state["installs"].append(rec)
+    _save_state(state)
+
+
+def _git_head(root: Path) -> str:
+    try:
+        out = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], check=True, capture_output=True, text=True)
+        return out.stdout.strip()
+    except Exception:
+        return ""
+
+
+def _load_state() -> dict:
+    sf = CACHE_ROOT / "installed.json"
+    if not sf.exists():
+        return {}
+    try:
+        return json.loads(sf.read_text())
+    except Exception:
+        return {}
+
+
+def _save_state(state: dict) -> None:
+    CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+    (CACHE_ROOT / "installed.json").write_text(json.dumps(state, indent=2) + "\n")
+
+
 def cmd_export(args) -> int:
+    return _run_export(args)
+
+
+def _run_export(args) -> int:
     manifest = load_manifest()
     manifest["_canvas_version"] = version()
     if getattr(args, "repo", None):
@@ -163,8 +222,75 @@ def cmd_export(args) -> int:
     shown = "global (host user config)" if args.global_ else target
     print(f"\nCANVAS v{version()} exported to host '{args.host}' at {shown}")
     print(f"  installed: {len(written)} artifacts")
+    _record_install(args, manifest, root, target)
     if args.global_:
         print("  Restart the host tool to load the new skills/agents.")
+    return 0
+
+
+def cmd_update(args) -> int:
+    """Replay recorded installs: refresh the fetched sources, re-export any that
+    are behind their recorded git commit. Backs the `curl | sh -- --update`."""
+    state = _load_state()
+    installs = state.get("installs", [])
+    scope = "global" if args.global_ else "project"
+    target_dir = None if args.global_ else Path(args.target or Path.cwd()).expanduser().resolve()
+
+    matches = []
+    for rec in installs:
+        if rec.get("scope") != scope:
+            continue
+        if scope == "global":
+            matches.append(rec)
+            continue
+        if Path(rec.get("target", "")).expanduser().resolve() == target_dir:
+            matches.append(rec)
+
+    if not matches:
+        where = "global install" if args.global_ else f"project install at {target_dir}"
+        print(f"canvas: no recorded {where} — run the curl installer first.", file=sys.stderr)
+        return 1
+
+    updated = 0
+    wanted_hosts = set(args.host or [])
+    for rec in matches:
+        host = rec.get("host")
+        if wanted_hosts and host not in wanted_hosts:
+            continue
+        repo = rec.get("repo")
+        if not repo:
+            continue
+        cache = fetch_remote(repo)
+        head = _git_head(cache)
+        if head and head == rec.get("commit"):
+            print(f"canvas: {host} @ {scope} already up to date ({rec.get('version')})")
+            continue
+
+        siblings = rec.get("siblings") or {}
+        sibling_args, sibling_path_args = [], []
+        for name, loc in siblings.items():
+            if loc and (loc.startswith("http") or loc.startswith("git@") or loc.endswith(".git")):
+                sibling_args.append(f"{name}={loc}")
+                sibling_path_args.append(f"{name}={fetch_remote(loc)}")
+            elif loc:
+                sibling_path_args.append(f"{name}={loc}")
+
+        ns = argparse.Namespace(
+            host=host,
+            target=None if args.global_ else str(target_dir),
+            global_=args.global_,
+            from_=repo,
+            repo=repo,
+            sibling=sibling_args or None,
+            sibling_path=sibling_path_args or None,
+        )
+        print(f"canvas: updating {host} @ {scope} ({rec.get('version')} -> new)")
+        rc = _run_export(ns)
+        if rc != 0:
+            return rc
+        updated += 1
+
+    print(f"\ncanvas: update complete — {updated} install(s) refreshed")
     return 0
 
 
@@ -232,6 +358,17 @@ def main(argv=None) -> int:
 
     ls = sub.add_parser("list", help="list hosts + core exportables")
     ls.set_defaults(fn=cmd_list)
+
+    up = sub.add_parser("update", help="refresh recorded installs (curl | sh --update)")
+    up.add_argument("--target", default=None, dest="target",
+                    help="project dir whose recorded install to update (default: current folder)")
+    up.add_argument("--project", dest="target", default=None,
+                    help="alias for --target")
+    up.add_argument("--global", dest="global_", action="store_true",
+                    help="update the GLOBAL install instead of a project")
+    up.add_argument("--host", default=None, action="append",
+                    help="only update this host (repeatable)")
+    up.set_defaults(fn=cmd_update)
 
     args = p.parse_args(argv)
     return args.fn(args)

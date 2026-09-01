@@ -30,6 +30,7 @@ options:
   --host <h>[,..]   restrict to hosts: opencode, claude-code (default: all)
   --url <repo>      CANVAS git source (default: \$CANVAS_URL)
   --no-siblings     skip the sibling repos (palette + ink-basic) (default: include)
+  --update          refresh an already-installed scope instead of (re)installing
   --help            show this help
 EOF
 }
@@ -38,6 +39,7 @@ scope="project"
 target=""
 url="$CANVAS_URL"
 siblings=1
+update=0
 declare -a hosts=()
 
 while [[ $# -gt 0 ]]; do
@@ -48,6 +50,7 @@ while [[ $# -gt 0 ]]; do
       IFS=',' read -r -a hosts <<< "$2"; shift 2 ;;
     --url) url="$2"; shift 2 ;;
     --no-siblings) siblings=0; shift ;;
+    --update) update=1; shift ;;
     --help|-h) usage; exit 0 ;;
     --) shift; break ;;
     *) usage >&2; exit 2 ;;
@@ -73,8 +76,11 @@ fetch() {
   [[ -d "$d/.git" ]] || { echo "canvas: error: could not fetch $label from $repo_url" >&2; exit 1; }
 }
 
-# --- build the sibling args + fetch them into the cache ---
+# --- build the sibling args + fetch them into the cache (skip on --update) ---
 sib_args=()
+if [[ "$update" -eq 1 ]]; then
+  siblings=0
+fi
 if [[ "$siblings" -eq 1 ]]; then
   echo "canvas: fetching siblings: palette ($PALETTE_URL), ink-basic ($INK_BASIC_URL)"
   fetch "$PALETTE_URL"    palette
@@ -98,6 +104,18 @@ else
   git clone --depth 1 "$url" "$dest" >/dev/null 2>&1
 fi
 [[ -f "$dest/scripts/canvas" ]] || { echo "canvas: error: source did not yield CANVAS (bad --url?)" >&2; exit 1; }
+
+# --- update mode: replay the recorded install instead of installing ---
+if [[ "$update" -eq 1 ]]; then
+  echo "canvas: updating recorded install ($scope)"
+  uargs=(update)
+  if [[ "$scope" == "global" ]]; then
+    uargs+=(--global)
+  else
+    uargs+=(--project "$(cd "${target:-$PWD}" && pwd)")
+  fi
+  exec python3 "$dest/scripts/canvas" "${uargs[@]}"
+fi
 
 # --- install for each requested host ---
 # project scope: the CLI defaults the opencode target to cwd, but be explicit
