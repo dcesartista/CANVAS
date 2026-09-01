@@ -109,8 +109,9 @@ def _meta(manifest_entry: dict, core_file: Path) -> dict:
 
 
 def render(root: Path, manifest: dict, target: Path, global_install: bool) -> list[str]:
-    # Effective install base. Global -> the user's ~/.claude dir directly.
-    base = (Path.home() / ".claude") if global_install else target
+    # Effective install base. Global -> the user's ~/.claude dir; project ->
+    # <target>/.claude (mirrors opencode's <target>/.opencode).
+    base = (Path.home() / ".claude") if global_install else (target / ".claude")
     ref_root = _reference_root(root, global_install)
 
     written: list[str] = []
