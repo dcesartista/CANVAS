@@ -72,7 +72,16 @@ If you already have the CANVAS repo cloned, run the CLI directly:
 ./scripts/canvas export --host opencode   --global --repo <CANVAS git URL>
 ./scripts/canvas export --host claude-code --global
 ./scripts/canvas update                            # same as the installer's --update
+./scripts/canvas doctor                            # check installs still resolve
 ```
+
+### If skills stop finding the corpus
+
+A claude-code install records an **absolute path** into `~/.canvas/src/canvas`
+inside every skill body, so clearing that cache leaves the skills pointing at
+nothing — silently: the agent simply finds no corpus. `canvas doctor` reports
+that, flags installs behind their recorded commit, and warns when the cache has
+local modifications that `--update`'s `git reset --hard` would discard.
 
 ### After any install
 

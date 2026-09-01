@@ -7,8 +7,9 @@ keeps core/ (the "what") separate from adapters/ (the "how per host").
 
 Usage:
     canvas export --host <host> [--target <dir>] [--global]
+    canvas update
+    canvas doctor
     canvas list
-    canvas version
 
 Each host has an adapter under adapters/<host>/ that knows how to render
 core/ + core/manifest.json into that host's expected on-disk layout.
@@ -286,6 +287,61 @@ def cmd_update(args) -> int:
     return 0
 
 
+def cmd_doctor(args) -> int:
+    """Check recorded installs still resolve.
+
+    The claude-code adapter bakes an absolute path to the ~/.canvas cache into
+    every installed skill body, so clearing that cache leaves the skills
+    pointing at nothing — with no error, the agent just finds no corpus. This
+    reports that before it becomes a confusing session.
+    """
+    state = _load_state()
+    installs = state.get("installs", [])
+    if not installs:
+        print("canvas doctor: no recorded installs (installed via curl? run the installer once).")
+        return 0
+
+    problems = 0
+    for rec in installs:
+        host, scope = rec.get("host"), rec.get("scope")
+        label = f"{host} @ {scope}"
+        cache = CACHE_ROOT / "src" / "canvas"
+        if not (cache / "scripts" / "canvas").exists():
+            print(f"  FAIL {label}: reference corpus missing at {cache}")
+            print("        installed skills point at a path that no longer exists — re-run the installer.")
+            problems += 1
+            continue
+
+        if scope == "project":
+            target = Path(rec.get("target", ""))
+            marker = target / (".claude" if host == "claude-code" else ".opencode")
+            if not marker.exists():
+                print(f"  FAIL {label}: install target {marker} is gone")
+                problems += 1
+                continue
+
+        head = _git_head(cache)
+        drift = "" if head == rec.get("commit") else "  (behind — run --update)"
+        print(f"  ok   {label}: corpus at {cache}{drift}")
+
+    # A dirty cache means --update's `git reset --hard` would discard local work.
+    cache = CACHE_ROOT / "src" / "canvas"
+    if (cache / ".git").exists():
+        try:
+            out = subprocess.run(["git", "-C", str(cache), "status", "--porcelain"],
+                                 check=True, capture_output=True, text=True).stdout.strip()
+        except Exception:
+            out = ""
+        if out:
+            n = len(out.splitlines())
+            print(f"\n  WARN cache has {n} local modification(s) at {cache}")
+            print("        `--update` runs `git reset --hard` and would discard them. Move them to a real checkout first.")
+            problems += 1
+
+    print(f"\ncanvas doctor: {'no problems' if not problems else str(problems) + ' problem(s)'}")
+    return 1 if problems else 0
+
+
 def cmd_list(args) -> int:
     print(f"CANVAS v{version()}")
     print("hosts available:")
@@ -335,6 +391,9 @@ def main(argv=None) -> int:
     up.add_argument("--host", default=None, action="append",
                     help="only update this host (repeatable)")
     up.set_defaults(fn=cmd_update)
+
+    dr = sub.add_parser("doctor", help="check recorded installs still resolve")
+    dr.set_defaults(fn=cmd_doctor)
 
     args = p.parse_args(argv)
     return args.fn(args)
