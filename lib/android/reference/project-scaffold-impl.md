@@ -126,12 +126,25 @@ tasks.register<JavaExec>("genContract") {
 Regeneration is base64-stable/no-op when the contract is unchanged; commit the generated sources so CI doesn't rebuild against a moving spec.
 
 ## Theme & Design Tokens <!-- 8 -->
-Compose UI consumes the **swappable `ink-basic` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ink.basic.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); no per-project `ui/theme/` color/type files.
+Compose UI consumes the **swappable `ink-basic` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ink.basic.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); **no per-project `ui/theme/` color/type files** — the theme IS ink-basic.
+
+**Wiring (required, not optional).** Resolve ink-basic from Maven Central (some apps pre-release may need `mavenLocal()` first — use Central when the version is live):
+```kotlin
+// app/build.gradle.kts
+dependencies {
+    implementation("io.github.dcesartista:ink-basic:0.1.0")
+}
+```
+Do **not** vendored-copy ink-basic into the project, add it as a module, or hand-roll a theme (`ui/theme/Color.kt`/`Type.kt`/`Theme.kt`). If the coordinate cannot be resolved, that is a hard blocker to report — not a license to hand-write Material3 (see `ink-basic/CONSUMING.md` `## Option B` local fallback for the offline `mavenLocal()` path).
+
+**Use `CanvasTheme` at the root** (from `com.canvas.ink.basic.palette`), and `Canvas*` components everywhere; the app must not reference stock M3 widgets (`MaterialTheme`, `Button(`, `Card(`, etc.) anywhere it should use ink-basic:
 ```kotlin
 import com.canvas.ink.basic.palette.CanvasTheme
 @Composable fun DefaultTokens() = CanvasTheme { content() }
 ```
-To rebrand, pass a different `Palette` (e.g. `CanvasTheme(palette = myPalette)`); components are not re-themed in place. Type/size/color tokens live in ink-basic's T3 `token/` layer, realized from `ink-basic/CONSUMING.md`'s dependency pathway (composite build/submodule or published Maven).
+**Self-check the seam:** after scaffolding, `glob`-verify there is **no** hand-written `app/src/main/.../ui/theme/` and `grep` the source for raw M3 leaf components (`Button(`, `OutlinedTextField(`, `Card(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(`) and bare `MaterialTheme.` — fix any to `Canvas*` + `LocalSemanticTokens` until clean. The build must resolve `io.github.dcesartista:ink-basic` and compile.
+
+To rebrand, pass a different `Palette` (e.g. `CanvasTheme(palette = myPalette)`); components are not re-themed in place. Type/size/color tokens live in ink-basic's T3 `token/` layer (see `ink-basic/CONSUMING.md`).
 
 ## Bring-up <!-- 14 -->
 A "running instance" = a **debug APK installed on an emulator/device**, or a green build when no device is available. Concrete steps the worker takes from a clean checkout:
