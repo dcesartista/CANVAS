@@ -125,7 +125,7 @@ tasks.register<JavaExec>("genContract") {
 ```
 Regeneration is base64-stable/no-op when the contract is unchanged; commit the generated sources so CI doesn't rebuild against a moving spec.
 
-## Theme & Design Tokens <!-- 8 -->
+## Theme & Design Tokens <!-- 21 -->
 Compose UI consumes the **swappable `ink-basic` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ink.basic.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); **no per-project `ui/theme/` color/type files** — the theme IS ink-basic.
 
 **Wiring (required, not optional).** Resolve ink-basic from Maven Central (some apps pre-release may need `mavenLocal()` first — use Central when the version is live):
