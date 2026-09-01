@@ -1,0 +1,25 @@
+name: selfcheck
+
+# CANVAS's corpus is the authority its agents copy from, so internal
+# consistency is a correctness gate, not a style preference.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  selfcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Corpus + render self-check
+        run: python3 scripts/selfcheck.py
+      - name: Render every host (must not raise)
+        run: |
+          for host in $(python3 scripts/canvas list | sed -n 's/^  - //p'); do
+            echo "--- rendering $host"
+            python3 scripts/canvas export --host "$host" --target "$(mktemp -d)"
+          done
