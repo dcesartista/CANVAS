@@ -105,6 +105,27 @@ Wrap `MainActivity.setContent { CanvasTheme { AppNavHost() } }`. To rebrand, pas
 
 Pull it in as a dependency (composite build / submodule or published Maven — see `ui-default/CONSUMING.md`). The contract these realize lives in the agnostic sibling **Palette** repo (`docs/0001-ui-token-contract.md`, `docs/0002-component-inventory.md`); CANVAS owns the non-themeable core-correctness floor only.
 
+## ui-default self-check <!-- 6 -->
+CANVAS is the tool that *builds* the UI, so it enforces the seam itself — no separate linter needed. After writing a screen, **`Grep` the generated file and reject it** if any violation below appears; fix and re-verify before reporting done (mirrors the build/test gates). These are the only valid escape hatches and must not be used lightly:
+1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ui-default names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`, `Scaffold`) may remain raw.
+2. **Raw primitive color/hex in a component** — a literal `Color(0x...` or `Color.Red`/`Color.White` used as fill/text/border/bg. Use a T3 semantic color via `LocalSemanticTokens` (e.g. `t.color.textPrimary`, `t.color.bgSurface`, `t.color.error`), never a hex literal.
+3. **Raw `dp` where a token exists** — `padding(16.dp)`, `height(64.dp)`, `size(48.dp)` etc. for spacing/elevation/radius/sizing. Use `t.space.*`, `t.radius.*`, `t.elevation.*`, `t.sizing.*`. (Hairline strokes `1.dp` borders/dividers and `0.dp` gaps are accepted.)
+4. **Bare `MaterialTheme.typography.*` / `MaterialTheme.colorScheme.*`** — UI must come from ui-default tokens (`TextFromType` or the component's own text). This also catches a missing `CanvasTheme` root (which is what populates `LocalSemanticTokens`).
+
+Anti-pattern example the self-check must reject:
+```kotlin
+// ❌ REJECT — raw M3 + hardcoded hex + raw dp
+Button({ onClick() }) { Text("Go", style = MaterialTheme.typography.titleMedium) }
+Box(Modifier.padding(16.dp).background(Color(0xFF4F46E5))) { ... }
+```
+```kotlin
+// ✅ PASS — ui-default, token-sourced
+CanvasButton("Go", onClick = {})
+val t = LocalSemanticTokens.current
+Box(Modifier.padding(t.space.md).background(t.color.accentPrimary)) { ... }
+```
+If the screen legitimately needs behavior ui-default lacks, **compose it from existing `Canvas*` components** rather than dropping to raw M3. Only a genuinely new compound should be added to ui-default (and then to the Palette inventory), never hand-rolled in the screen.
+
 ## State Hoisting <!-- 8 -->
 Request state (and any state with lifecycle needs) is hoisted to the ViewModel and passed down; local, ephemeral UI state (text field draft, expansion toggles) stays in the composable via `rememberSaveable`. Hoist the *minimum*: lift state only until it's needed by siblings or for persistence.
 ```kotlin
