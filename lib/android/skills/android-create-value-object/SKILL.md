@@ -13,7 +13,7 @@ Create one domain **Value Object**. Create-only — if it exists, STOP.
 ## Procedure
 1. `section-query` `reference/domain-theory.md` → `## Value Object` and `lib/android/reference/domain-impl.md` → `## Value Object`.
 2. Write `domain/<feature>/<Name>.kt`: immutable, equality by value, validated construction — invalid states unrepresentable; no identity, no mutable state.
-3. **Pure domain**, no framework/data/DI types ([QUALITY-BAR](../../../../../QUALITY-BAR.md) §1). Used as entity/use-case field types (`android-create-domain-entity`).
+3. **Pure domain**, no framework/data/DI types ([QUALITY-BAR](../../../../QUALITY-BAR.md) §1). Used as entity/use-case field types (`android-create-domain-entity`).
 
 ## Output
 `Glob` + `Grep` the value class + validation; confirm only domain imports.

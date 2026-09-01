@@ -42,6 +42,6 @@ Every external input is **validated before use** (QUALITY-BAR §4): typed contra
 ## Least Privilege <!-- 3 -->
 The app declares **only the permissions it exercises** and handles denial gracefully (QUALITY-BAR §4): permission requests are contextual and minimal, data access is scoped per purpose, and a runtime-denied permission degrades the feature, not the app. A manifest full of unused permissions is a free attack surface nobody inspected.
 
-## Screen-Safety & Data Hygiene <!-- 4 -->
+## Screen-Safety & Data Hygiene <!-- 3 -->
 User-facing data is protected **on and off screen** ([MASVS storage section](https://mobile-security.gitbook.io/mobile-app-security-testing-guide/)): flags keep secure content out of recents and screenshots; clipboard and screen-capture guards protect credential fields; sessions auto-lock on timeout; cache and crash dumps are scrubbed of sensitive payloads. An exported backup or readable cache dir is a data-exfiltration channel wearing a shrug.
 

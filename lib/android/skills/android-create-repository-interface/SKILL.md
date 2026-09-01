@@ -14,7 +14,7 @@ Create one **Repository Interface** (port). Create-only — if it exists, STOP.
 
 ## Procedure
 1. `section-query` `reference/domain-theory.md` → `## Repository Interface` and `lib/android/reference/domain-impl.md` → `## Repository Interface`.
-2. Write `domain/<feature>/<Aggregate>Repository.kt`: an `interface` in **domain types only** — `suspend` operations + `Flow` for observation. **No DTO/Room/network types** in any signature ([QUALITY-BAR](../../../../../QUALITY-BAR.md) §1).
+2. Write `domain/<feature>/<Aggregate>Repository.kt`: an `interface` in **domain types only** — `suspend` operations + `Flow` for observation. **No DTO/Room/network types** in any signature ([QUALITY-BAR](../../../../QUALITY-BAR.md) §1).
 3. The implementation is created separately (`android-create-repository-impl`).
 
 ## Output

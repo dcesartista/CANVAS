@@ -34,7 +34,7 @@ Contract-first: verify contract-generated symbols before any call site; never ha
 For each artifact: if the file exists → **edit directly**; else **call the procedure** (resolve `lib/android/skills/<skill>/SKILL.md`, Read, follow). Verify sibling API signatures before any call site. Validate each before the next artifact.
 
 ## Rules
-Conform to the [Quality Bar](../QUALITY-BAR.md) + the impl reference. When in doubt, ask the reference — never invent.
+Conform to the `QUALITY-BAR.md` (at the corpus root) + the impl reference. When in doubt, ask the reference — never invent.
 
 ## Validation
 After all artifacts: **Gate 1** (typecheck/build) then **Gate 2** (tests). Fix by reading real signatures — never guessing. Run once, fix, re-run once. Surface `/audit` (**Gate 3**) before claiming done.

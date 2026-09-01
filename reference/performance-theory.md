@@ -45,6 +45,6 @@ A **shipped, per-release performance artifact** telling the runtime which code t
 ## Memory & Leaks <!-- 3 -->
 **Flat, predictable memory across the session** (QUALITY-BAR §5): no activity/context/ViewModel leaks, no unbounded caches, no retained coroutines (concurrency-theory Scope Ownership exists because of this). Measurement is in the pipeline from day one (QUALITY-BAR §7), because "it felt OK in my tester session" is exactly how leaks ship. A forever-growing heap is a performance bug with a delayed fuse.
 
-## Measure First <!-- 4 -->
+## Measure First <!-- 3 -->
 Performance work begins at **measurement**: profile before and after, never "optimize by feel" (QUALITY-BAR §5). The pipeline produces per-release regressions (frame times, cold start, profile coverage), and work intends something measurable — "≤1 recomposition per row while scrolling", "cold start under X". Optimizing blind is the only way to ship a net-worse app while believing it got faster.
 

@@ -42,6 +42,6 @@ The released artifact is **checked, not assumed** (QUALITY-BAR §7): signature v
 ## Incremental Builds <!-- 3 -->
 Gradle correctness is paired with **fast incremental builds** (QUALITY-BAR §7): configuration cache and up-to-date checks keep CI and local iteration fast as the build grows, because a build that takes 20 minutes gets run half as often and trusted less. Configuration-cache bugs surface as "works warm, breaks clean", which is why the release pipeline runs at least one clean build per milestone.
 
-## CI Secrets & Environments <!-- 4 -->
+## CI Secrets & Environments <!-- 3 -->
 Secrets (keystores, service credentials) are **scoped, least-privilege, per-environment** (QUALITY-BAR §4, §7): CI reads them from its secret store, debug builds never see release keys, logs redact them, and nothing secret serializes into the repo or public build files. A release pipeline's leak surface — keystores, tokens, store credentials — is at least as valuable as the app code, and protected as such.
 

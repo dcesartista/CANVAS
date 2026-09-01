@@ -45,6 +45,6 @@ The release path is **present and green before the first feature** (QUALITY-BAR 
 ## Bring-Up <!-- 3 -->
 The scaffold documents **how to run everything**: one local-machine path (`./gradlew` + local emulator) and one scripted path, from `start` (dependencies) to an installed running app (QUALITY-BAR §7). "Bring it up" is a fixed sequence in the README, verified by a fresh-clone test. Unwritten bring-up is the #1 cause of "works on my machine" onboarding — for new joiners and for agents alike.
 
-## CI Gates <!-- 4 -->
+## CI Gates <!-- 3 -->
 A CI pipeline runs the gates on **every PR from day one** (QUALITY-BAR §8): lint → static analysis → unit tests → build, with an instrumented/Compose job on an emulator. Trunk-based + Conventional Commits enforced mechanically. The pipeline is cheap to add at scaffold time and expensive to retrofit — so it ships in the skeleton and is never invented later.
 

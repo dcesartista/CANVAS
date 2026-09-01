@@ -42,6 +42,6 @@ When a producer outruns a consumer, the policy is **explicit** ([flow buffering]
 ## Supervision <!-- 3 -->
 A **child-failure boundary that does NOT kill the parent** (`supervisorScope`/`SupervisorJob`): one slow sibling may fail while its scope lives on — the right shape for independent loaders on one screen ([exception handling](https://kotlinlang.org/docs/exception-handling.html)). Default `Job` semantics (any child failure cancels the tree) are correct for dependent work; supervision is for independent fan-out. Use flow's `catch`/`onEach` near the consumer so errors become state, not crashes.
 
-## Scope Ownership <!-- 4 -->
+## Scope Ownership <!-- 3 -->
 Every scope has **one clear owner whose lifetime it mirrors** (QUALITY-BAR §3): the platform provides `viewModelScope`/`lifecycleScope` for screens; feature-level scopes are explicit and owned. `GlobalScope` is forbidden — it is the anti-pattern of orphaned work. "Which scope does this run in?" must always have a one-word answer; if it doesn't, the code is guessing at its own lifetime.
 

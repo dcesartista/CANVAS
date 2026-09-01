@@ -1,6 +1,6 @@
 # Android — security impl (OWASP ASVS L2)
 
-> How the security Terms ([security-theory.md](../../security-theory.md)) are implemented in native Android against **OWASP ASVS 5.0 Level 2** (QUALITY-BAR §4, §7).
+> How the security Terms ([security-theory.md](../../../reference/security-theory.md)) are implemented in native Android against **OWASP ASVS 5.0 Level 2** (QUALITY-BAR §4, §7).
 > **Rules (QUALITY-BAR §4):** tokens in Keystore-backed secure storage; short-lived rotating tokens; Bearer attached once via interceptor; 401 → single-flight refresh with `Mutex`; deny-by-default navigation; TLS everywhere with cleartext blocked; typed layer validation; secrets never in `BuildConfig`/VCS; logging redacts credentials.
 
 ## Secure Token Storage <!-- 15 -->
@@ -135,7 +135,7 @@ Every external input is **validated before use at the type system** (QUALITY-BAR
 ```
 Validation in the type is fail-fast at the edge — the injection family is closed by construction, not by code review.
 
-## Logging Hygiene <!-- 17 -->
+## Logging Hygiene <!-- 16 -->
 **Secrets and personal data never reach logs** (QUALITY-BAR §4, ASVS): no tokens, passwords, or PII in crash reports, logcat, or analytics. Sensitive events (auth success/failure, refresh, logout) are logged *without credentials*; structured redaction is applied at the single logging indirection so a stray `Log.d("token", ...)` cannot leak.
 ```kotlin
 object SafeLog {

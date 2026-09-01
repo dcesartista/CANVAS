@@ -1,6 +1,6 @@
 # Android — navigation impl (Navigation 3, type-safe)
 
-> How navigation Terms ([navigation-theory.md](../../navigation-theory.md)) are written in native Android with **Navigation 3** (`androidx.navigation3`, state-driven, single-activity). Routes are **type-safe** (Kotlin serialization-based `@Serializable` routes, replacing string routes and `composable("path/{id}")`). Navigation Compose 2.x is only a fallback for a deep legacy graph; new graphs are Navigation 3.
+> How navigation Terms ([navigation-theory.md](../../../reference/navigation-theory.md)) are written in native Android with **Navigation 3** (`androidx.navigation3`, state-driven, single-activity). Routes are **type-safe** (Kotlin serialization-based `@Serializable` routes, replacing string routes and `composable("path/{id}")`). Navigation Compose 2.x is only a fallback for a deep legacy graph; new graphs are Navigation 3.
 > **Rules (QUALITY-BAR §1, §4):** single `MainActivity` + one `NavHost`; navigation driven by UI state/events, never from inside content composables; auth destinations are deny-by-default behind a nav guard.
 
 ## Nav Graph <!-- 18 -->
@@ -96,7 +96,7 @@ NavHost(...) {
 ```
 `startDestination` resolves within the nested scope; navigate within a tab, and `popUpTo`/`launchSingleTop` operate on that tab's stack — the pattern behind clean bottom-nav.
 
-## Transitions & Arguments <!-- 10 -->
+## Transitions & Arguments <!-- 9 -->
 Wire animations with `enterTransition`/`exitTransition` on `composable<T>` (or a shared `NavHost` default) and read route args before scoping. Keep transitions subtle (`fadeIn`/`slideInHorizontally`) for 60fps; avoid heavy transforms on large lists.
 ```kotlin
 composable<HomeRoute>(

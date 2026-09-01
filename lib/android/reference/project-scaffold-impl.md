@@ -1,6 +1,6 @@
 # Android — project scaffold impl (full spec)
 
-> The exhaustive, authoritative spec of the CANVAS **native Android** scaffold — the "bring-up" blueprint. Same `##` Terms as [project-scaffold-theory.md](../../project-scaffold-theory.md), but expressed in real Kotlin/Compose/Gradle.
+> The exhaustive, authoritative spec of the CANVAS **native Android** scaffold — the "bring-up" blueprint. Same `##` Terms as [project-scaffold-theory.md](../../../reference/project-scaffold-theory.md), but expressed in real Kotlin/Compose/Gradle.
 > Stack (QUALITY-BAR): Kotlin · Jetpack Compose (Material 3) · Hilt · Coroutines/Flow · Retrofit + kotlinx.serialization · Room · Navigation 3 · Keystore+Tink token storage · JUnit5/Turbine/MockWebServer. Single-activity, strict Clean.
 
 ## Module Layout <!-- 13 -->
@@ -16,7 +16,7 @@ app/src/main/res/     values/ (themes, strings, colors) · xml/ (network_securit
 ```
 `domain` has **zero** `android.*` imports (detekt `forbidden-import`, see domain-impl); `data` may import android only for Room/Context-backed stores; `ui` depends on both.
 
-## Package Layout <!-- 10 -->
+## Package Layout <!-- 9 -->
 Feature-first at `ui/<feature>/`: one folder per screen flow, containing its `*ViewModel` and its `*Screen`/`*Content` composables plus the feature-specific `UiState`/`UiEvent`. Shared cross-cutting (navigation, guards) live at `ui/navigation`. The **theme and the component set are NOT vendored per-project** — they come from the swappable `ink-basic` library (see `## Theme & Design Tokens` below).
 ```
 ui/home/       HomeViewModel.kt · HomeScreen.kt · HomeUiState.kt
@@ -125,7 +125,7 @@ tasks.register<JavaExec>("genContract") {
 ```
 Regeneration is base64-stable/no-op when the contract is unchanged; commit the generated sources so CI doesn't rebuild against a moving spec.
 
-## Theme & Design Tokens <!-- 10 -->
+## Theme & Design Tokens <!-- 8 -->
 Compose UI consumes the **swappable `ink-basic` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ink.basic.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); no per-project `ui/theme/` color/type files.
 ```kotlin
 import com.canvas.ink.basic.palette.CanvasTheme
@@ -147,7 +147,7 @@ adb shell am start -n com.example.canvas/.MainActivity
 ```
 If no device is attached, report the successful `assembleDebug` + exact run instructions and note the Android SDK/JDK prerequisites (JDK 17, SDK at `ANDROID_HOME`). Never claim a running app without either an installed launch or a verified green build.
 
-## Quality Gates & CI <!-- 8 -->
+## Quality Gates & CI <!-- 7 -->
 Same gate for local and CI (QUALITY-BAR §7, §8): `ktlintCheck detekt lint testDebugUnitTest assembleDebug` on push; Compose UI + Robolectric/Room integration tests on a separate instrumented job; all red gates block merge; trunk-based + Conventional Commits.
 ```bash
 ./gradlew ktlintCheck detekt lint testDebugUnitTest assembleDebug # the universal gate

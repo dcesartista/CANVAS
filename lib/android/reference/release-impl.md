@@ -1,6 +1,6 @@
 # Android — release impl (Gradle Kotlin DSL + R8 + AAB + CI)
 
-> How release/build Terms ([release-theory.md](../../release-theory.md)) are written in native Android: Gradle Kotlin DSL + version catalog, AGP/KSP/Compose BOM, R8 minification, AAB, baseline profile, signing from env, and GitHub Actions CI. Per QUALITY-BAR §7.
+> How release/build Terms ([release-theory.md](../../../reference/release-theory.md)) are written in native Android: Gradle Kotlin DSL + version catalog, AGP/KSP/Compose BOM, R8 minification, AAB, baseline profile, signing from env, and GitHub Actions CI. Per QUALITY-BAR §7.
 > **Rule:** the build must be reproducible and versioned; secrets (keystore, signing) never in VCS; every release ships a fresh baseline profile + AAB and passes `lint`, `ktlint`, `detekt`, and tests.
 
 ## Gradle Kotlin DSL <!-- 11 -->
@@ -90,7 +90,7 @@ signingConfigs {
 ```
 If unset, `assembleRelease` fails clearly rather than signing with a placeholder; the CI job injects these from its secret store.
 
-## Quality Gates (CI) <!-- 11 -->
+## Quality Gates (CI) <!-- 10 -->
 GitHub Actions: on push/PR, run the full gate — `ktlintCheck detekt lint testDebugUnitTest assembleDebug` — with UI/Compose tests on an emulator job (QUALITY-BAR §8). Fail on first red gate; cache Gradle to keep it fast.
 ```yaml
 steps:

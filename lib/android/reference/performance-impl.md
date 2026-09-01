@@ -1,6 +1,6 @@
 # Android — performance impl (Compose stability & jank)
 
-> How performance Terms ([performance-theory.md](../../performance-theory.md)) are written in native Android Compose, per Google's [Compose performance guide](https://developer.android.com/jetpack/compose/performance) and QUALITY-BAR §5 (60fps, no work on main, stable models, baseline profiles).
+> How performance Terms ([performance-theory.md](../../../reference/performance-theory.md)) are written in native Android Compose, per Google's [Compose performance guide](https://developer.android.com/jetpack/compose/performance) and QUALITY-BAR §5 (60fps, no work on main, stable models, baseline profiles).
 > **Rule:** measure first (layout inspector / `@Preview` + baseline), optimize hot paths, regenerate the baseline profile each release. Stability is the #1 lever.
 
 ## Stability <!-- 11 -->
@@ -66,7 +66,7 @@ dependencies { baselineProfile(project(":baselineprofile")) }
 ```
 Generate with the `generateBaselineProfile` task per release (QUALITY-BAR §7) and commit the resulting `src/main/baseline-prof.txt`; regenerate whenever the navigation/startup path changes.
 
-## Jank Avoidance <!-- 10 -->
+## Jank Avoidance <!-- 9 -->
 Avoid work on the main thread: no I/O, DB, reflection, or allocation in composition/layout; defer with `Dispatchers.IO`/`Default` at the data boundary (QUALITY-BAR §3) and let `collectAsStateWithLifecycle` resume on the UI dispatcher. Skip heavy lambdas in `items`/`content` blocks.
 ```kotlin
 val deferred by remember(products) { derivedStateOf { heavyButIdempotent(products) } }  // cheap

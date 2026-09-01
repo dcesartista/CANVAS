@@ -1,6 +1,6 @@
 # Android — domain impl (pure Kotlin)
 
-> How the shared domain Terms ([domain-theory.md](../../domain-theory.md)) are written in native Android.
+> How the shared domain Terms ([domain-theory.md](../../../reference/domain-theory.md)) are written in native Android.
 > **Hard rule (QUALITY-BAR §1, §6):** `domain` is **pure Kotlin** — zero `android.*` imports, zero Retrofit/Room/Compose, zero Hilt. The compile-time guard is a detekt/lint `forbidden-import` rule on the `domain` source set (`android.net`, `android.content`, `android.os.*`). Lives in a `:domain` module (or `domain/` package) compiled by plain `kotlin` — never `kotlin-android` — and unit-tested on the JVM.
 
 ## Entity <!-- 19 -->
@@ -105,7 +105,7 @@ val <T> Page<T>.hasMore get() = nextCursor != null
 ```
 `Page` shapes collections at the data boundary; `Result` carries outcomes. Keep both in domain so use cases and ViewModels depend only on stable, tested types.
 
-## Compatibility <!-- 9 -->
+## Compatibility <!-- 8 -->
 `minSdk 34+` (QUALITY-BAR §1) lets `domain` use `java.time.*`/`kotlin.time` and standard-library features without desugaring surprises; keep the module compiled with `jvmTarget 17` to match the app. Avoid `androidx.annotation.*` in favor of Kotlin-stdlib constraints so the layer stays framework-clean and runs on a plain JVM in `testDebugUnitTest`.
 ```kotlin
 // :domain/build.gradle.kts — no android plugin, pure kotlin
