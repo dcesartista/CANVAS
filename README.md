@@ -51,6 +51,18 @@ curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/ins
   | sh -s -- --url git@github.com:you/CANVAS-fork.git
 ```
 
+### Update an existing install
+
+Every successful install records its sources + scope in `~/.canvas/installed.json`. Replay the same command to refresh any recorded install that is behind its git commit (already-current installs are skipped):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh -s -- --update                 # this project
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh -s -- --update --global     # global install
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh -s -- --update --project ../other
+```
+
+Identical-no-op: re-running right after an install reports "already up to date" and exits 0.
+
 ### The CLI (local checkout only)
 
 If you already have the CANVAS repo cloned, run the CLI directly:
@@ -59,7 +71,7 @@ If you already have the CANVAS repo cloned, run the CLI directly:
 ./scripts/canvas list                              # what CANVAS knows how to export
 ./scripts/canvas export --host opencode   --global --repo <CANVAS git URL>
 ./scripts/canvas export --host claude-code --global
-./scripts/canvas export --host claude-plugin       # rebuild the Claude plugin bundle
+./scripts/canvas update                            # same as the installer's --update
 ```
 
 ### After any install
@@ -84,6 +96,8 @@ distribution/    pre-built, committed bundles (e.g. the Claude plugin)
 lib/             the knowledge: android/, process/, cross-cutting/
 scripts/canvas   the CLI that renders core/ + corpus into an adapter's format
 scripts/install-canvas.sh  the curl | sh bootstrap (delegates to scripts/canvas)
+~/.canvas/src/   cached git checkouts (never cloned into the consumer project)
+~/.canvas/installed.json  recorded installs — what `--update` replays
 ```
 
 ### The tier model
