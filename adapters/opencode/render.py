@@ -40,7 +40,11 @@ def _yaml_scalar(key, value):
 
 def _skill_front_matter(meta):
     name = SKILL_FOLDER_NAMES.get(meta["id"], meta["id"])
-    return "---\n" + _yaml_scalar("name", name) + _yaml_scalar("description", meta["description"]) + "---\n"
+    out = "---\n" + _yaml_scalar("name", name) + _yaml_scalar("description", meta["description"])
+    tools = meta.get("tools")
+    if tools:
+        out += _yaml_scalar("allowed-tools", tools)
+    return out + "---\n"
 
 
 def _agent_front_matter(meta):
@@ -52,6 +56,10 @@ def _agent_front_matter(meta):
     model = meta.get("model")
     if model:
         out += _yaml_scalar("model", model)
+    # A read-only agent (auditor, perf-scorer) must never be able to mutate the
+    # work it is scoring. opencode takes a per-tool boolean map, not a list.
+    if meta.get("read_only"):
+        out += "tools:\n  write: false\n  edit: false\n  patch: false\n"
     return out + "---\n"
 
 
