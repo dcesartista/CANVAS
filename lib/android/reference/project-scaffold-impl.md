@@ -126,9 +126,9 @@ tasks.register<JavaExec>("genContract") {
 Regeneration is base64-stable/no-op when the contract is unchanged; commit the generated sources so CI doesn't rebuild against a moving spec.
 
 ## Theme & Design Tokens <!-- 10 -->
-Compose UI consumes the **swappable `ui-default` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ui.default.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); no per-project `ui/theme/` color/type files.
+Compose UI consumes the **swappable `ui-default` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.uidefault.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); no per-project `ui/theme/` color/type files.
 ```kotlin
-import com.canvas.ui.default.palette.CanvasTheme
+import com.canvas.uidefault.palette.CanvasTheme
 @Composable fun DefaultTokens() = CanvasTheme { content() }
 ```
 To rebrand, pass a different `Palette` (e.g. `CanvasTheme(palette = myPalette)`); components are not re-themed in place. Type/size/color tokens live in ui-default's T3 `token/` layer, realized from `ui-default/CONSUMING.md`'s dependency pathway (composite build/submodule or published Maven).

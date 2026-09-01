@@ -81,11 +81,11 @@ fun ProductListRoute(
 `collectAsStateWithLifecycle` (from `androidx.lifecycle:lifecycle-runtime-compose`) stops collecting when the composable leaves the idle/started window, saving CPU on backgrounded screens.
 
 ## Material 3 Theme <!-- 11 -->
-Theming is a Compose `@Composable` wrapper over `MaterialTheme`. CANVAS apps do **not** hand-write a theme — they consume the swappable UI library **`ui-default`** (the Android realization of the agnostic Palette contract). `CanvasTheme` from `com.canvas.ui.default.palette` supplies a complete light/dark/highContrast palette and the M3 bridge (color scheme + typography) mapped from T3 semantic tokens:
+Theming is a Compose `@Composable` wrapper over `MaterialTheme`. CANVAS apps do **not** hand-write a theme — they consume the swappable UI library **`ui-default`** (the Android realization of the agnostic Palette contract). `CanvasTheme` from `com.canvas.uidefault.palette` supplies a complete light/dark/highContrast palette and the M3 bridge (color scheme + typography) mapped from T3 semantic tokens:
 ```kotlin
-import com.canvas.ui.default.palette.CanvasTheme
-import com.canvas.ui.default.palette.DefaultPalette
-import com.canvas.ui.default.palette.LocalSemanticTokens
+import com.canvas.uidefault.palette.CanvasTheme
+import com.canvas.uidefault.palette.DefaultPalette
+import com.canvas.uidefault.palette.LocalSemanticTokens
 
 @Composable
 fun AppRoot() {
@@ -97,7 +97,7 @@ fun AppRoot() {
 Wrap `MainActivity.setContent { CanvasTheme { AppNavHost() } }`. To rebrand, pass a different `Palette` (swappable) — components are **not** re-themed in place. All colors/sizes reach components as T3 semantic tokens via `LocalSemanticTokens`; never raw hex/Dp in components ([QUALITY-BAR](../../../QUALITY-BAR.md) §5).
 
 ## ui-default <!-- 9 -->
-`ui-default` is a separate Android library (`com.canvas.ui.default`) holding the swappable default "look": the token layer (T3 semantics), `DefaultPalette` for each mode, `CanvasTheme`, and the component set. Screens **build only from these components** — never raw `MaterialTheme`/M3 widgets or hand-rolled theme:
+`ui-default` is a separate Android library (`com.canvas.uidefault`) holding the swappable default "look": the token layer (T3 semantics), `DefaultPalette` for each mode, `CanvasTheme`, and the component set. Screens **build only from these components** — never raw `MaterialTheme`/M3 widgets or hand-rolled theme:
 - Containers: `CanvasCard`, `CanvasTopBar` (64dp), `CanvasBottomNav`(+`NavDest`), `CanvasTabRow`, `CanvasListItem`
 - Inputs/actions: `CanvasButton`, `CanvasButtonSecondary`, `CanvasTextField`
 - Feedback/states: `CanvasEmptyState`, `CanvasErrorState`, `CanvasSnackbar`, `CanvasProgress`
