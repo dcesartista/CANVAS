@@ -6,55 +6,72 @@ CANVAS is where you paint production-grade Android apps. It lifts precise compon
 
 **Status: Phase 0 — anchor & scaffold.** The repo holds the anchor documents and the Android impl skeleton. Content is built from real friction in later phases (extract, don't predict).
 
-## Install & use
+## Install
 
-CANVAS is distributed per host — **"share the what, specialize the how."** Pick your agent host and follow its install path. After any install, **restart the host tool** (skills aren't hot-reloaded), open a consumer project, then run the slash commands below.
+CANVAS installs everywhere via **one curl command** — it fetches the corpus into a hidden cache (`~/.canvas`), renders into every supported host's project layout, and touches nothing global unless you opt in.
+
+### Quick install — both hosts, project-local (default)
+
+From your project's root (empty folder or existing repo):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh
+```
+
+This writes into the **current folder** only — nothing global:
+
+```
+your-project/
+├── .opencode/          opencode skills + agents
+├── opencode.json       references.canvas (auto-fetch, no clone)
+└── .claude/            claude-code skills + agents
+```
+
+### Global install — all projects (explicit opt-in)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh -s -- --global
+```
+
+Writes to `~/.config/opencode/` + `~/.claude/`. Not recommended for most setups.
+
+### Install only one host
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh -s -- --host opencode
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh | sh -s -- --host claude-code
+```
+
+### Override the CANVAS source
+
+If you run a fork or private repo, point at your own git URL:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dcesartista/CANVAS/main/scripts/install-canvas.sh \
+  | sh -s -- --url git@github.com:you/CANVAS-fork.git
+```
+
+### The CLI (local checkout only)
+
+If you already have the CANVAS repo cloned, run the CLI directly:
+
+```bash
+./scripts/canvas list                              # what CANVAS knows how to export
+./scripts/canvas export --host opencode   --global --repo <CANVAS git URL>
+./scripts/canvas export --host claude-code --global
+./scripts/canvas export --host claude-plugin       # rebuild the Claude plugin bundle
+```
+
+### After any install
+
+**Restart the host tool** (skills aren't hot-reloaded), then run:
 
 | Command | What it does |
 | --- | --- |
 | `/build-android-starter` | Scaffold a brand-new production-grade Android app |
 | `/build-android-feature` | Add one bounded feature to an existing project |
-| `/audit` | Score the current work against the Quality Bar (validation Gate 3) |
+| `/audit` | Score the current work against the Quality Bar (Gate 3) |
 | `/perf-review` | Performance score the built work |
-
-### Claude Code — one-tap plugin (no repo cloning)
-
-```bash
-claude plugin marketplace add <CANVAS git repo>
-claude plugin install canvas@canvas-marketplace
-```
-
-The full quality corpus is bundled into the plugin, so nothing else is needed. Rebuild the bundle after a CANVAS change with:
-
-```bash
-./scripts/canvas export --host claude-plugin     # rebuild distribution/claude-plugin
-```
-
-### opencode
-
-opencode has no file marketplace (plugins are npm TS/JS modules, which **cannot carry Agent Skills** today), so install is:
-
-```bash
-# all projects + corpus auto-fetched from the CANVAS repo (nothing to clone)
-./scripts/canvas export --host opencode --global --repo <CANVAS git URL>
-
-# or a single project, referencing a local CANVAS checkout via path:
-./scripts/canvas export --host opencode --target <project>
-```
-
-`--global --repo` drops the 4 skills into `~/.config/opencode/skills/` and adds a `references.canvas` entry using `repository:` so opencode auto-fetches the corpus.
-
-### Any project, any host — the CLI
-
-If you already have a CANVAS checkout, the CLI renders/installs to any host:
-
-```bash
-./scripts/canvas list                          # what CANVAS knows how to export
-./scripts/canvas export --host opencode    --target <project>   # per-project
-./scripts/canvas export --host opencode    --global --repo <url>
-./scripts/canvas export --host claude-code --global             # ~/.claude/ (all projects)
-./scripts/canvas export --host claude-plugin                    # rebuild the Claude plugin bundle
-```
 
 ## How it works
 
@@ -66,6 +83,7 @@ adapters/        the per-host HOW — render core/ into each host's on-disk form
 distribution/    pre-built, committed bundles (e.g. the Claude plugin)
 lib/             the knowledge: android/, process/, cross-cutting/
 scripts/canvas   the CLI that renders core/ + corpus into an adapter's format
+scripts/install-canvas.sh  the curl | sh bootstrap (delegates to scripts/canvas)
 ```
 
 ### The tier model
