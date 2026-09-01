@@ -18,10 +18,12 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent  # repo root
+CACHE_ROOT = Path.home() / ".canvas"  # hidden installer cache (not a project clone)
 
 
 def load_manifest() -> dict:
@@ -41,11 +43,12 @@ def available_hosts() -> list[str]:
     return [d.name for d in adapter_dir.iterdir() if d.is_dir() and (d / "render.py").exists()]
 
 
-def load_renderer(host: str):
+def load_renderer(host: str, root: Path | None = None):
     """Dynamically import adapters/<host>/render.py and return its render() fn."""
     import importlib.util
 
-    path = ROOT / "adapters" / host / "render.py"
+    base = root or ROOT
+    path = base / "adapters" / host / "render.py"
     if not path.exists():
         print(f"error: no adapter for host '{host}' (expected {path})", file=sys.stderr)
         sys.exit(1)
@@ -55,6 +58,34 @@ def load_renderer(host: str):
     return mod
 
 
+def fetch_remote(url: str) -> Path:
+    """Fetch the CANVAS repo into the hidden ~/.canvas cache (no consumer clone).
+
+    Returns the checkout path to render from. A shallow clone keeps it small;
+    the cache persists so references.canvas `path:` can point at it and repeat
+    installs are instant. `--from` is the remote install surface used by the
+    bootstrap (curl) installer — the user never clones CANVAS into their project.
+    """
+    cache = CACHE_ROOT / "src"
+    cache.mkdir(parents=True, exist_ok=True)
+    needle = url.rstrip("/").split("/")[-1] or "canvas"
+    dest = cache / needle
+    is_git_url = url.startswith("git@") or url.startswith("git://") or url.endswith(".git") or "github.com:" in url
+    if is_git_url:
+        if not (dest / ".git").exists():
+            subprocess.run(
+                ["git", "clone", "--depth", "1", url, str(dest)],
+                check=True, capture_output=True,
+            )
+        else:
+            subprocess.run(["git", "-C", str(dest), "pull", "--ff-only"], check=True, capture_output=True)
+    else:
+        shutil.rmtree(dest, ignore_errors=True)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(url, dest, dirs_exist_ok=True)  # local path source (dev/testing)
+    return dest
+
+
 def cmd_export(args) -> int:
     manifest = load_manifest()
     manifest["_canvas_version"] = version()
@@ -62,18 +93,39 @@ def cmd_export(args) -> int:
         manifest["_canvas_repo"] = args.repo
     renderer = load_renderer(args.host)
 
+    # Remote install: render from a fetched checkout instead of this local repo.
+    root = ROOT
+    if getattr(args, "from_", None):
+        root = fetch_remote(args.from_)
+        print(f"  fetched CANVAS from {args.from_} -> {root}", file=sys.stderr)
+        try:
+            manifest = json.loads((root / "core" / "manifest.json").read_text())
+        except Exception:
+            pass
+        manifest["_canvas_version"] = (root / "VERSION").read_text().strip() or "0.1.0"
+        if getattr(args, "repo", None):
+            manifest["_canvas_repo"] = args.repo
+        elif isinstance(args.from_, str) and (args.from_.startswith("git@") or args.from_.startswith("git://") or args.from_.endswith(".git") or "github.com:" in args.from_):
+            manifest["_canvas_repo"] = args.from_  # remote URL implies repository: auto-fetch
+        renderer = load_renderer(args.host, root=root)
+
     # Plugin hosts build a self-contained bundle into the repo's distribution/
     # dir by default (and keep the marketplace manifest in sync).
     plugin_defaults = {
-        "claude-plugin": ROOT / "distribution" / "claude-plugin" / "canvas",
+        "claude-plugin": root / "distribution" / "claude-plugin" / "canvas",
     }
-    default_target = plugin_defaults.get(args.host, ROOT)
+    if args.host == "opencode" and args.target is None and not args.global_:
+        # Bare project install: land .opencode/ + opencode.json in the current
+        # folder (the folder where the curl bootstrap runs) — nothing global.
+        default_target = Path.cwd()
+    else:
+        default_target = plugin_defaults.get(args.host, root)
     target = Path(args.target or default_target).expanduser().resolve()
     if not args.global_:
         target.mkdir(parents=True, exist_ok=True)
 
     try:
-        written = renderer.render(root=ROOT, manifest=manifest, target=target, global_install=args.global_)
+        written = renderer.render(root=root, manifest=manifest, target=target, global_install=args.global_)
     except NotImplementedError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
@@ -138,9 +190,13 @@ def main(argv=None) -> int:
     ex.add_argument("--host", required=True, choices=available_hosts() or None,
                     help="target host (see adapters/)")
     ex.add_argument("--target", default=None,
-                    help="output directory (default: write into the host's project/global location)")
+                    help="output directory (default: the current folder for opencode project installs)")
+    ex.add_argument("--project", dest="target", default=None,
+                    help="alias for --target: output directory (project-local install target)")
     ex.add_argument("--global", dest="global_", action="store_true",
                     help="install into the host's GLOBAL/user config instead of a project dir")
+    ex.add_argument("--from", dest="from_", default=None,
+                    help="CANVAS git URL (or local path) to fetch and render from — the remote install / curl surface; no consumer clone")
     ex.add_argument("--repo", default=None,
                     help="CANVAS git URL for the opencode references.canvas 'repository' field (auto-fetch, no clone); defaults to $CANVAS_REPO")
     ex.set_defaults(fn=cmd_export)
