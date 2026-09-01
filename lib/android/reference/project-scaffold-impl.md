@@ -132,7 +132,7 @@ Compose UI consumes the **swappable `ink-basic` library** (the Android realizati
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("io.github.dcesartista:ink-basic:0.1.0")
+    implementation("com.cesartista.canvas:ink-basic:0.1.0")
 }
 ```
 Do **not** vendored-copy ink-basic into the project, add it as a module, or hand-roll a theme (`ui/theme/Color.kt`/`Type.kt`/`Theme.kt`). If the coordinate cannot be resolved, that is a hard blocker to report — not a license to hand-write Material3 (see `ink-basic/CONSUMING.md` `## Option B` local fallback for the offline `mavenLocal()` path).
@@ -142,7 +142,7 @@ Do **not** vendored-copy ink-basic into the project, add it as a module, or hand
 import com.canvas.ink.basic.palette.CanvasTheme
 @Composable fun DefaultTokens() = CanvasTheme { content() }
 ```
-**Self-check the seam:** after scaffolding, `glob`-verify there is **no** hand-written `app/src/main/.../ui/theme/` and `grep` the source for raw M3 leaf components (`Button(`, `OutlinedTextField(`, `Card(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(`) and bare `MaterialTheme.` — fix any to `Canvas*` + `LocalSemanticTokens` until clean. The build must resolve `io.github.dcesartista:ink-basic` and compile.
+**Self-check the seam:** after scaffolding, `glob`-verify there is **no** hand-written `app/src/main/.../ui/theme/` and `grep` the source for raw M3 leaf components (`Button(`, `OutlinedTextField(`, `Card(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(`) and bare `MaterialTheme.` — fix any to `Canvas*` + `LocalSemanticTokens` until clean. The build must resolve `com.cesartista.canvas:ink-basic` and compile.
 
 To rebrand, pass a different `Palette` (e.g. `CanvasTheme(palette = myPalette)`); components are not re-themed in place. Type/size/color tokens live in ink-basic's T3 `token/` layer (see `ink-basic/CONSUMING.md`).
 
