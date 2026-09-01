@@ -58,31 +58,40 @@ def load_renderer(host: str, root: Path | None = None):
     return mod
 
 
-def fetch_remote(url: str) -> Path:
-    """Fetch the CANVAS repo into the hidden ~/.canvas cache (no consumer clone).
+def fetch_remote(source: str) -> Path:
+    """Resolve the CANVAS checkout to render from, given a `--from` source.
 
-    Returns the checkout path to render from. A shallow clone keeps it small;
-    the cache persists so references.canvas `path:` can point at it and repeat
-    installs are instant. `--from` is the remote install surface used by the
-    bootstrap (curl) installer — the user never clones CANVAS into their project.
+    The bootstrap (curl) installer clones CANVAS into the hidden ~/.canvas cache
+    and hands that existing checkout dir here — so if `source` is already a
+    CANVAS directory we use it in place (no re-fetch, no self-collision). For a
+    git URL we shallow-clone into the cache. The consumer project is never
+    cloned into. Returns the checkout path to render from.
     """
+    url = str(source).rstrip("/")
+    is_git_url = url.startswith("git@") or url.startswith("git://") or url.endswith(".git") or "github.com:" in url
+
+    if not is_git_url and Path(url).is_dir():
+        p = Path(url).expanduser().resolve()
+        if (p / "scripts" / "canvas").exists():
+            return p  # already a CANVAS checkout — use in place
+        # bare local dir source (dev/testing): copy into cache
+        cache = CACHE_ROOT / "src"
+        cache.mkdir(parents=True, exist_ok=True)
+        dest = cache / (p.name or "canvas")
+        shutil.rmtree(dest, ignore_errors=True)
+        shutil.copytree(p, dest)
+        return dest
+
+    # git URL (or ambiguous string): clone-or-refresh into the cache
     cache = CACHE_ROOT / "src"
     cache.mkdir(parents=True, exist_ok=True)
-    needle = url.rstrip("/").split("/")[-1] or "canvas"
+    needle = url.split("/")[-1].replace(".git", "") or "canvas"
     dest = cache / needle
-    is_git_url = url.startswith("git@") or url.startswith("git://") or url.endswith(".git") or "github.com:" in url
-    if is_git_url:
-        if not (dest / ".git").exists():
-            subprocess.run(
-                ["git", "clone", "--depth", "1", url, str(dest)],
-                check=True, capture_output=True,
-            )
-        else:
-            subprocess.run(["git", "-C", str(dest), "pull", "--ff-only"], check=True, capture_output=True)
+    if not (dest / ".git").exists():
+        subprocess.run(["git", "clone", "--depth", "1", url, str(dest)], check=True, capture_output=True)
     else:
-        shutil.rmtree(dest, ignore_errors=True)
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(url, dest, dirs_exist_ok=True)  # local path source (dev/testing)
+        subprocess.run(["git", "-C", str(dest), "fetch", "--depth", "1", "origin"], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(dest), "reset", "--hard", "FETCH_HEAD"], check=True, capture_output=True)
     return dest
 
 
