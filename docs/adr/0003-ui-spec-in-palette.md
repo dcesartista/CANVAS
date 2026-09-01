@@ -15,4 +15,4 @@ The framework-agnostic design-token & component spec lives in a **sibling projec
 ## Consequence
 
 - `docs/adr/0001-ui-token-contract.md` and `docs/adr/0002-component-inventory.md` (initially drafted in CANVAS) were **moved to `palette/docs/`**, retaining their ADR numbering within Palette.
-- The Android-facing implementation decisions that remain CANVAS-specific (Compose components, the M3 bridge, where `ui-default` installs) belong to CANVAS / the Android UI package and are tracked separately.
+- The Android-facing implementation decisions that remain CANVAS-specific (Compose components, the M3 bridge, where `ink-basic` installs) belong to CANVAS / the Android UI package and are tracked separately.

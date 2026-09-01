@@ -81,11 +81,11 @@ fun ProductListRoute(
 `collectAsStateWithLifecycle` (from `androidx.lifecycle:lifecycle-runtime-compose`) stops collecting when the composable leaves the idle/started window, saving CPU on backgrounded screens.
 
 ## Material 3 Theme <!-- 11 -->
-Theming is a Compose `@Composable` wrapper over `MaterialTheme`. CANVAS apps do **not** hand-write a theme — they consume the swappable UI library **`ui-default`** (the Android realization of the agnostic Palette contract). `CanvasTheme` from `com.canvas.uidefault.palette` supplies a complete light/dark/highContrast palette and the M3 bridge (color scheme + typography) mapped from T3 semantic tokens:
+Theming is a Compose `@Composable` wrapper over `MaterialTheme`. CANVAS apps do **not** hand-write a theme — they consume the swappable UI library **`ink-basic`** (the Android realization of the agnostic Palette contract). `CanvasTheme` from `com.canvas.ink.basic.palette` supplies a complete light/dark/highContrast palette and the M3 bridge (color scheme + typography) mapped from T3 semantic tokens:
 ```kotlin
-import com.canvas.uidefault.palette.CanvasTheme
-import com.canvas.uidefault.palette.DefaultPalette
-import com.canvas.uidefault.palette.LocalSemanticTokens
+import com.canvas.ink.basic.palette.CanvasTheme
+import com.canvas.ink.basic.palette.DefaultPalette
+import com.canvas.ink.basic.palette.LocalSemanticTokens
 
 @Composable
 fun AppRoot() {
@@ -96,21 +96,21 @@ fun AppRoot() {
 ```
 Wrap `MainActivity.setContent { CanvasTheme { AppNavHost() } }`. To rebrand, pass a different `Palette` (swappable) — components are **not** re-themed in place. All colors/sizes reach components as T3 semantic tokens via `LocalSemanticTokens`; never raw hex/Dp in components ([QUALITY-BAR](../../../QUALITY-BAR.md) §5).
 
-## ui-default <!-- 9 -->
-`ui-default` is a separate Android library (`com.canvas.uidefault`) holding the swappable default "look": the token layer (T3 semantics), `DefaultPalette` for each mode, `CanvasTheme`, and the component set. Screens **build only from these components** — never raw `MaterialTheme`/M3 widgets or hand-rolled theme:
+## ink-basic <!-- 9 -->
+`ink-basic` is a separate Android library (`com.canvas.ink.basic`) holding the swappable default "look": the token layer (T3 semantics), `DefaultPalette` for each mode, `CanvasTheme`, and the component set. Screens **build only from these components** — never raw `MaterialTheme`/M3 widgets or hand-rolled theme:
 - Containers: `CanvasCard`, `CanvasTopBar` (64dp), `CanvasBottomNav`(+`NavDest`), `CanvasTabRow`, `CanvasListItem`
 - Inputs/actions: `CanvasButton`, `CanvasButtonSecondary`, `CanvasTextField`
 - Feedback/states: `CanvasEmptyState`, `CanvasErrorState`, `CanvasSnackbar`, `CanvasProgress`
 - Type bridge: `TextFromType` → `TextStyle` from `TypeStyle` tokens (use instead of raw `TextStyle(...)`)
 
-Pull it in as a dependency (composite build / submodule or published Maven — see `ui-default/CONSUMING.md`). The contract these realize lives in the agnostic sibling **Palette** repo (`docs/0001-ui-token-contract.md`, `docs/0002-component-inventory.md`); CANVAS owns the non-themeable core-correctness floor only.
+Pull it in as a dependency (composite build / submodule or published Maven — see `ink-basic/CONSUMING.md`). The contract these realize lives in the agnostic sibling **Palette** repo (`docs/0001-ui-token-contract.md`, `docs/0002-component-inventory.md`); CANVAS owns the non-themeable core-correctness floor only.
 
-## ui-default self-check <!-- 6 -->
+## ink-basic self-check <!-- 6 -->
 CANVAS is the tool that *builds* the UI, so it enforces the seam itself — no separate linter needed. After writing a screen, **`Grep` the generated file and reject it** if any violation below appears; fix and re-verify before reporting done (mirrors the build/test gates). These are the only valid escape hatches and must not be used lightly:
-1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ui-default names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`, `Scaffold`) may remain raw.
+1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ink-basic names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`, `Scaffold`) may remain raw.
 2. **Raw primitive color/hex in a component** — a literal `Color(0x...` or `Color.Red`/`Color.White` used as fill/text/border/bg. Use a T3 semantic color via `LocalSemanticTokens` (e.g. `t.color.textPrimary`, `t.color.bgSurface`, `t.color.error`), never a hex literal.
 3. **Raw `dp` where a token exists** — `padding(16.dp)`, `height(64.dp)`, `size(48.dp)` etc. for spacing/elevation/radius/sizing. Use `t.space.*`, `t.radius.*`, `t.elevation.*`, `t.sizing.*`. (Hairline strokes `1.dp` borders/dividers and `0.dp` gaps are accepted.)
-4. **Bare `MaterialTheme.typography.*` / `MaterialTheme.colorScheme.*`** — UI must come from ui-default tokens (`TextFromType` or the component's own text). This also catches a missing `CanvasTheme` root (which is what populates `LocalSemanticTokens`).
+4. **Bare `MaterialTheme.typography.*` / `MaterialTheme.colorScheme.*`** — UI must come from ink-basic tokens (`TextFromType` or the component's own text). This also catches a missing `CanvasTheme` root (which is what populates `LocalSemanticTokens`).
 
 Anti-pattern example the self-check must reject:
 ```kotlin
@@ -119,12 +119,12 @@ Button({ onClick() }) { Text("Go", style = MaterialTheme.typography.titleMedium)
 Box(Modifier.padding(16.dp).background(Color(0xFF4F46E5))) { ... }
 ```
 ```kotlin
-// ✅ PASS — ui-default, token-sourced
+// ✅ PASS — ink-basic, token-sourced
 CanvasButton("Go", onClick = {})
 val t = LocalSemanticTokens.current
 Box(Modifier.padding(t.space.md).background(t.color.accentPrimary)) { ... }
 ```
-If the screen legitimately needs behavior ui-default lacks, **compose it from existing `Canvas*` components** rather than dropping to raw M3. Only a genuinely new compound should be added to ui-default (and then to the Palette inventory), never hand-rolled in the screen.
+If the screen legitimately needs behavior ink-basic lacks, **compose it from existing `Canvas*` components** rather than dropping to raw M3. Only a genuinely new compound should be added to ink-basic (and then to the Palette inventory), never hand-rolled in the screen.
 
 ## State Hoisting <!-- 8 -->
 Request state (and any state with lifecycle needs) is hoisted to the ViewModel and passed down; local, ephemeral UI state (text field draft, expansion toggles) stays in the composable via `rememberSaveable`. Hoist the *minimum*: lift state only until it's needed by siblings or for persistence.
