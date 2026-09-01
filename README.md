@@ -92,7 +92,6 @@ CANVAS is written **once, host-neutral** and rendered to whichever agent host yo
 ```
 core/            the canonical, host-neutral WHAT — manifest (registry) + skills + agents
 adapters/        the per-host HOW — render core/ into each host's on-disk format
-distribution/    pre-built, committed bundles (e.g. the Claude plugin)
 lib/             the knowledge: android/, process/, cross-cutting/
 scripts/canvas   the CLI that renders core/ + corpus into an adapter's format
 scripts/install-canvas.sh  the curl | sh bootstrap (delegates to scripts/canvas)
@@ -115,7 +114,7 @@ cross-cutting     lib/cross-cutting/     the shared "what": API contract, checkl
 
 ### The corpus & the reference seam
 
-The impl corpus lives in `lib/android/reference/*-impl.md` (Clean architecture, DI, concurrency, security, performance, testing, release, …) alongside `lib/android/skills/` (low-level `android-create-*` procedures). The 4 workflow skills orchestrate; each host's adapter exposes this corpus to the agent — via a `references.canvas` git reference (opencode), a bundled plugin corpus (Claude plugin), or a reference-root preamble (claude-code).
+The impl corpus lives in `lib/android/reference/*-impl.md` (Clean architecture, DI, concurrency, security, performance, testing, release, …) alongside `lib/android/skills/` (low-level `android-create-*` procedures). The 4 workflow skills orchestrate; each host's adapter exposes this corpus to the agent — via a `references.canvas` git reference (opencode) or a reference-root preamble (claude-code).
 
 ### The process
 
