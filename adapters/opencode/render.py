@@ -110,6 +110,20 @@ def _canvas_reference(manifest: dict, root: Path) -> dict:
     return {"path": str(root), "description": "CANVAS reference corpus — lib/android/reference/*-impl.md and core/ skills/agents. Use for native-Android architecture, Kotlin/Compose/Hilt/Room how-to."}
 
 
+def _sibling_reference(name: str, info: dict) -> dict:
+    """Turn a sibling manifest entry into an opencode reference + description.
+
+    Prefer git repository: (opencode auto-fetches, no clone) and fall back to a
+    local path (e.g. the installer's flattened ~/.canvas cache checkout).
+    """
+    if info.get("url"):
+        ref = {"repository": info["url"]}
+    else:
+        ref = {"path": str(info["path"])}
+    ref["description"] = f"{name} — sibling design-system repo of CANVAS (referenced, never vendored)."
+    return ref
+
+
 def _write_config(cfg_path: Path, cfg: dict) -> str:
     """Merge + write a config file; returns the path string to report."""
     cfg_path.write_text(json.dumps(cfg, indent=2) + "\n")
@@ -144,20 +158,23 @@ def render(root: Path, manifest: dict, target: Path, global_install: bool) -> li
         out.write_text(_agent_front_matter(meta) + "\n" + _body(src) + "\n")
         written.append(f"~/{out.relative_to(shown)}" if global_install else str(out.relative_to(target)))
 
-    # --- references.canvas wiring ---
-    ref = _canvas_reference(manifest, root)
+    # --- references.canvas + sibling repos wiring ---
+    refs = {"canvas": _canvas_reference(manifest, root)}
+    for name, info in (manifest.get("_siblings") or {}).items():
+        if info.get("url") or info.get("path"):
+            refs[name] = _sibling_reference(name, info)
     if global_install:
         cfg_dir = Path.home() / ".config" / "opencode"
         cfg_path = cfg_dir / "opencode.json"
         if not cfg_path.exists() and (cfg_dir / "opencode.jsonc").exists():
             cfg_path = cfg_dir / "opencode.jsonc"
         cfg = _open_config(cfg_path)
-        cfg["references"]["canvas"] = ref
+        cfg["references"].update(refs)
         written.append(_write_config(cfg_path, cfg))
     else:
         cfg_path = target / "opencode.json"
         cfg = _open_config(cfg_path)
-        cfg["references"]["canvas"] = ref
+        cfg["references"].update(refs)
         written.append(_write_config(cfg_path, cfg))
 
     return written

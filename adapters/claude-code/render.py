@@ -68,8 +68,12 @@ def _reference_root(root: Path, global_install: bool) -> str:
     return str(root.expanduser().resolve())
 
 
-def _with_reference_preamble(body: str, root: Path) -> str:
+def _with_reference_preamble(body: str, root: Path, siblings: dict | None = None) -> str:
     line = f"{MARKER} CANVAS reference corpus root: {root} (read-only; lib/android/reference/*-impl.md, lib/android/skills/, lib/process/)."
+    for name, info in (siblings or {}).items():
+        loc = info.get("path") or info.get("url")
+        if loc:
+            line += f" | {name}: {loc}"
     if MARKER in body:
         return body
     return line + "\n\n" + body
@@ -118,6 +122,7 @@ def render(root: Path, manifest: dict, target: Path, global_install: bool) -> li
     skills_dir = base / "skills"
     agents_dir = base / "agents"
     shown = Path.home() if global_install else target
+    siblings = manifest.get("_siblings")
 
     for skill in manifest["skills"]:
         src = root / "core" / "skills" / f"{skill['id']}.md"
@@ -125,7 +130,7 @@ def render(root: Path, manifest: dict, target: Path, global_install: bool) -> li
         out = skills_dir / folder / "SKILL.md"
         out.parent.mkdir(parents=True, exist_ok=True)
         meta = _meta(skill, src)
-        body = _with_reference_preamble(_body(src), ref_root)
+        body = _with_reference_preamble(_body(src), ref_root, siblings)
         out.write_text(_skill_front_matter(meta, skill["id"]) + "\n" + body + "\n")
         written.append(f"~/{out.relative_to(shown)}" if global_install else str(out.relative_to(target)))
 
@@ -134,7 +139,7 @@ def render(root: Path, manifest: dict, target: Path, global_install: bool) -> li
         out = agents_dir / f"{agent['id']}.md"
         out.parent.mkdir(parents=True, exist_ok=True)
         meta = _meta(agent, src)
-        body = _with_reference_preamble(_body(src), ref_root)
+        body = _with_reference_preamble(_body(src), ref_root, siblings)
         out.write_text(_agent_front_matter(meta) + "\n" + body + "\n")
         written.append(f"~/{out.relative_to(shown)}" if global_install else str(out.relative_to(target)))
 

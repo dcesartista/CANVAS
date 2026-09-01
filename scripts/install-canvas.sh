@@ -15,6 +15,10 @@
 set -euo pipefail
 
 : "${CANVAS_URL:=https://github.com/dcesartista/CANVAS.git}"
+: "${PALETTE_URL:=https://github.com/dcesartista/PALETTE.git}"
+: "${INK_BASIC_URL:=https://github.com/dcesartista/Ink-Basic.git}"
+
+CACHE_ROOT="$HOME/.canvas"
 
 usage() {
   cat <<EOF
@@ -25,6 +29,7 @@ options:
   --project <dir>   install into <dir>/ (default: the current folder)
   --host <h>[,..]   restrict to hosts: opencode, claude-code (default: all)
   --url <repo>      CANVAS git source (default: \$CANVAS_URL)
+  --no-siblings     skip the sibling repos (palette + ink-basic) (default: include)
   --help            show this help
 EOF
 }
@@ -32,6 +37,7 @@ EOF
 scope="project"
 target=""
 url="$CANVAS_URL"
+siblings=1
 declare -a hosts=()
 
 while [[ $# -gt 0 ]]; do
@@ -41,6 +47,7 @@ while [[ $# -gt 0 ]]; do
     --host)
       IFS=',' read -r -a hosts <<< "$2"; shift 2 ;;
     --url) url="$2"; shift 2 ;;
+    --no-siblings) siblings=0; shift ;;
     --help|-h) usage; exit 0 ;;
     --) shift; break ;;
     *) usage >&2; exit 2 ;;
@@ -52,8 +59,33 @@ if [[ ${#hosts[@]} -eq 0 ]]; then
   hosts=("opencode" "claude-code")
 fi
 
+# --- fetch a repo into the hidden cache (no clone into the project) ---
+fetch() {
+  local repo_url="$1" label="$2"
+  local d="$CACHE_ROOT/src/$label"
+  if [[ -d "$d/.git" ]]; then
+    git -C "$d" fetch --depth 1 --force origin >/dev/null 2>&1
+    git -C "$d" reset --hard FETCH_HEAD >/dev/null 2>&1
+  else
+    rm -rf "$d"
+    git clone --depth 1 "$repo_url" "$d" >/dev/null 2>&1
+  fi
+  [[ -d "$d/.git" ]] || { echo "canvas: error: could not fetch $label from $repo_url" >&2; exit 1; }
+}
+
+# --- build the sibling args + fetch them into the cache ---
+sib_args=()
+if [[ "$siblings" -eq 1 ]]; then
+  echo "canvas: fetching siblings: palette ($PALETTE_URL), ink-basic ($INK_BASIC_URL)"
+  fetch "$PALETTE_URL"    palette
+  fetch "$INK_BASIC_URL"  ink-basic
+  sib_args=(
+    --sibling "palette=$PALETTE_URL"    --sibling-path "palette=$CACHE_ROOT/src/palette"
+    --sibling "ink-basic=$INK_BASIC_URL" --sibling-path "ink-basic=$CACHE_ROOT/src/ink-basic"
+  )
+fi
+
 # --- fetch CANVAS into the hidden cache (no clone into the project) ---
-CACHE_ROOT="$HOME/.canvas"
 dest="$CACHE_ROOT/src/canvas"
 echo "canvas: fetching $url -> $dest"
 mkdir -p "$CACHE_ROOT/src"
@@ -77,7 +109,7 @@ fi
 
 for host in "${hosts[@]}"; do
   echo "canvas: applying $scope install for host '$host'"
-  args=(export --host "$host" --from "$dest" --repo "$url")
+  args=(export --host "$host" --from "$dest" --repo "$url" "${sib_args[@]}")
   if [[ "$scope" == "global" ]]; then
     args+=(--global)
   else

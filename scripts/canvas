@@ -95,11 +95,26 @@ def fetch_remote(source: str) -> Path:
     return dest
 
 
+def _collect_siblings(args) -> dict:
+    """Parse --sibling NAME=URL / --sibling-path NAME=DIR into {name: {url?, path?}}."""
+    sib: dict = {}
+    for pair in (getattr(args, "sibling", None) or []):
+        name, _, url = pair.partition("=")
+        if name and url:
+            sib.setdefault(name, {})["url"] = url
+    for pair in (getattr(args, "sibling_path", None) or []):
+        name, _, path = pair.partition("=")
+        if name and path:
+            sib.setdefault(name, {})["path"] = path
+    return sib
+
+
 def cmd_export(args) -> int:
     manifest = load_manifest()
     manifest["_canvas_version"] = version()
     if getattr(args, "repo", None):
         manifest["_canvas_repo"] = args.repo
+    manifest["_siblings"] = _collect_siblings(args)
     renderer = load_renderer(args.host)
 
     # Remote install: render from a fetched checkout instead of this local repo.
@@ -116,6 +131,7 @@ def cmd_export(args) -> int:
             manifest["_canvas_repo"] = args.repo
         elif isinstance(args.from_, str) and (args.from_.startswith("git@") or args.from_.startswith("git://") or args.from_.endswith(".git") or "github.com:" in args.from_):
             manifest["_canvas_repo"] = args.from_  # remote URL implies repository: auto-fetch
+        manifest["_siblings"] = _collect_siblings(args)
         renderer = load_renderer(args.host, root=root)
 
     # Plugin hosts build a self-contained bundle into the repo's distribution/
@@ -208,6 +224,10 @@ def main(argv=None) -> int:
                     help="CANVAS git URL (or local path) to fetch and render from — the remote install / curl surface; no consumer clone")
     ex.add_argument("--repo", default=None,
                     help="CANVAS git URL for the opencode references.canvas 'repository' field (auto-fetch, no clone); defaults to $CANVAS_REPO")
+    ex.add_argument("--sibling", action="append", default=None, metavar="NAME=URL",
+                    help="sibling repo git URL to include (repeatable; e.g. palette=https://github.com/dcesartista/PALETTE.git)")
+    ex.add_argument("--sibling-path", action="append", default=None, metavar="NAME=DIR",
+                    help="local checkout dir for a sibling repo (repeatable; used by hosts without auto-fetch, e.g. claude-code)")
     ex.set_defaults(fn=cmd_export)
 
     ls = sub.add_parser("list", help="list hosts + core exportables")
