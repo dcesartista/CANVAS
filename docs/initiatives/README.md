@@ -12,6 +12,7 @@
 | I-3 | Multi-AI (claude/gpt) support | Stability across model providers | open | a second model produces a pass |
 | I-4 | Modularization guidance | `:domain`/`:data`/`:app` split beyond single-module | open | a scaffold outgrows a single module |
 | I-5 | Baseline-profile CI regen | Profile drift after deps bump | open | release task shows stale baseline |
+| I-14 | Component signature table for ink-basic | GT-A1 run 3: the corpus names `Canvas*` components but documents no parameters, and ink-basic is now a binary artifact with no source in-tree. Cost a compile cycle guessing `subtitle` vs `supportingText` | open | a second scaffold guesses a signature wrong |
 | I-6 | A visual/render gate | GT-A1: the app shipped stock M3 lavender (`#FEF7FF`) past build+lint+ktlint+detekt. Every CANVAS gate is textual; the defect was visual | **promoted** | proven by GT-A1 |
 | I-7 | `git init` + first commit in the scaffold | GT-A1: `canvas-commerce` has no repository, so §8 (trunk, Conventional Commits, CI) is unreachable by construction | **promoted** | proven by GT-A1 |
 | I-8 | Wire JaCoCo in the scaffold | GT-A1: §6's ≥75% floor is unmeasurable — 26 tests pass, coverage unknown | **promoted** | proven by GT-A1 |
@@ -28,3 +29,6 @@
 | I-8 | JaCoCo + coverage verification | GT-A1's §6 floor was unmeasurable. |
 | I-9 | Navigation reconciled to Nav Compose 2.x type-safe | Decided 2026-09-02: QUALITY-BAR §1, `navigation-impl.md` and `security-impl.md` all now say the same thing, and it matches what builds. |
 | I-10 | Contract seam self-check | GT-A1 shipped 4 hand-written DTOs against §3. |
+| I-11 | Falsify every gate before trusting it | GT-A1 run 3: the coverage gate passed 0.99 at 71% real coverage; the render check had both a false-PASS and a false-FAIL mode. |
+| I-12 | `## Editor Config` Term | ktlint's function-naming rule blocks all Compose code until `.editorconfig` exists; the corpus never mentioned it. |
+| I-13 | Content root must paint the palette ground | `CanvasTheme` draws nothing, so a literal reading of the snippet renders the platform window background. |
