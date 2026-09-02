@@ -39,6 +39,6 @@ The **typed return the domain sees**: a sealed type carrying either the domain v
 ## Migration <!-- 3 -->
 **Schema evolution done forward-only and without data loss** (QUALITY-BAR §2): versioned migrations (`Migration` objects / `AutoMigration`) ship in release order, the schema export is version-controlled and exercised in tests. Destructive changes are explicit and reviewed. A data layer without a migration story is a data layer that blocks every future release.
 
-## Unit of Work <!-- 4 -->
+## Unit of Work <!-- 3 -->
 A **transaction boundary**: several source operations run **atomically** (all-or-nothing) through an interface the data layer implements (QUALITY-BAR §2). Use cases express "write the aggregate and its sync-queue entry together" *without importing the transport/database type*. This prevents the partial writes that corrupt the SSOT — the classic case is a write plus its outbox event failing together versus apart.
 

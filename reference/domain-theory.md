@@ -42,6 +42,6 @@ A **business rule the domain enforces, always** — either by value objects that
 ## Nullability <!-- 3 -->
 Kotlin's **null-safety is part of the core's contract** (QUALITY-BAR §1): return types say `Result<T>` or `T`, never nullable "maybe it was missing" — absence is an explicit concept (a `NotFound` error or an empty collection). Platform types (`!`) and `!!` are banned here; the compiler is the first check the domain ships to production with.
 
-## Testability <!-- 4 -->
+## Testability <!-- 3 -->
 The payoff: a domain that imports nothing runs in **plain JVM unit tests at millisecond speed** — the ~70% base of the pyramid (QUALITY-BAR §6) — with fakes standing in for every port, no instrumentation, no Robolectric, no device. If a domain test needs a device or a database, the boundary was drawn wrong.
 

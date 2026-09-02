@@ -35,21 +35,22 @@ The single source of architectural knowledge, read on demand — never embedded 
 
 **Grep-addressable headings (the read contract)**
 - Every `##` heading is a **Term** — the canonical name for one concept. One concept = one heading. No synonyms at `##` level (platform dialect goes in the body).
-- Each `##` heading carries a line count: `## Term <!-- N -->` where `N` = lines from this heading to the line before the next `##`. Agents extract `N` as the `limit` in `Read(file, offset=heading_line, limit=N)` to read exactly one section. A missing/non-integer `<!-- N -->` is a violation.
+- Each `##` heading carries a line count: `## Term <!-- N -->` where `N` = lines from this heading up to (not including) the next `##` heading — or to end of file for the final heading. Agents extract `N` as the `limit` in `Read(file, offset=heading_line, limit=N)` to read exactly one section. A missing, non-integer, or drifted `<!-- N -->` is a violation: an `N` smaller than the real section silently truncates it, and the agent never learns it read a partial rule.
+- **Enforced, not trusted:** `scripts/selfcheck.py` verifies every count, every `## Term` cross-reference, every relative link, and that no read-only agent renders with a mutating tool. `--fix` rewrites drifted counts. It runs in CI on every PR; recompute counts after editing any reference doc.
 - **`section-query` pattern:** `Grep "^## <Term>"` → `Read(offset, limit=N)`. Never read a whole reference file unless style-matching a new one.
 
 ## 4. Component model (build the minimum; grow by recurrence)
 
 | Component | Location | Role | Must contain |
 |---|---|---|---|
-| **Workflow skill** | `lib/process/skills/` | User entry point — routes, loads context, spawns | single user-facing task; owns the workflow |
-| **Worker** | `lib/android/agents/` | Reads plan → calls procedure skills → writes code → self-validates | `## Input`, `## Scope`, `## Search Protocol`, `## Output` (Glob+Grep verified) |
+| **Workflow skill** | `core/skills/` (host-neutral source; rendered per host) | User entry point — routes, loads context, spawns | single user-facing task; owns the workflow |
+| **Worker** | `core/agents/` (host-neutral source; rendered per host) | Reads plan → calls procedure skills → writes code → self-validates | `## Input`, `## Scope`, `## Search Protocol`, `## Output` (Glob+Grep verified) |
 | **Procedure skill** | `lib/android/skills/` | Thin, **create-only** "hands" for one artifact type | one task, references reference docs, no branching |
 | **Reference doc** | `reference/` + `lib/android/reference/` | Theory + deep Android impl (§3) | grep-addressable `## Term <!-- N -->` headings |
 | **Planner** *(add when features span ≥3 layers)* | `lib/android/planners/` | Explores one layer read-only, reports findings + impact | read-only tools only |
-| **Orchestrator** *(add with planners)* | `lib/process/agents/` | Brain-only — returns decision blocks, spawns nothing, writes only plan artifacts | structured `Decision:` blocks |
-| **Auditor** *(Phase 3)* | `lib/process/agents/` | Scores output against the Quality Bar | per-§ pass/partial/fail |
-| **Perf scorer** *(Phase 3)* | `lib/process/agents/` | Scores session efficiency/quality across versions | metrics |
+| **Orchestrator** *(add with planners)* | `core/agents/` | Brain-only — returns decision blocks, spawns nothing, writes only plan artifacts | structured `Decision:` blocks |
+| **Auditor** *(Phase 3)* | `core/agents/` | Scores output against the Quality Bar | per-§ pass/partial/fail |
+| **Perf scorer** *(Phase 3)* | `core/agents/` | Scores session efficiency/quality across versions | metrics |
 
 > Day-1 minimum = workflow skill + worker + procedure skills + reference. Orchestrator/planners are deferred until cross-layer planning pain is felt.
 

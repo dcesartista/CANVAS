@@ -42,6 +42,6 @@ The app **boots in a fixed, dependency-safe order** (QUALITY-BAR §1): initializ
 ## Cross-Cutting Boundaries <!-- 3 -->
 Infrastructure may **touch every layer — but only through interfaces** (QUALITY-BAR §1): the domain declares what it needs (a clock, a session, a repository port), and infra supplies the implementations. The discipline that keeps infra from becoming a god-layer is the same dependency rule as the rest: infra knows everything; nothing outward knows infra's specifics — the forbidden-import lint exists precisely to keep a crash SDK or an OkHttp type out of the domain.
 
-## Telemetry & Supportability <!-- 4 -->
+## Telemetry & Supportability <!-- 3 -->
 Beyond crash: **observability of the running app** (QUALITY-BAR §7 scope note) — networking traces, cold-start metrics, frame stats, and the "what happened before this crash" breadcrumbs. Infrastructure wires the *sinks* so layers stay clean; a version-aware, session-aware telemetry trail is what makes a support ticket answerable and a QA report reproducible. It is release-phase reality, but the abstractions must exist from scaffold day one.
 

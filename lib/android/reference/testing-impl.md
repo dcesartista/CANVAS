@@ -1,6 +1,6 @@
 # Android — testing impl (JUnit5 + Turbine + MockWebServer + Compose)
 
-> How the testing Terms ([testing-theory.md](../../testing-theory.md)) are written in native Android, per the Google [test pyramid](https://developer.android.com/training/testing/fundamentals) (~70/20/10) and QUALITY-BAR §6.
+> How the testing Terms ([testing-theory.md](../../../reference/testing-theory.md)) are written in native Android, per the Google [test pyramid](https://developer.android.com/training/testing/fundamentals) (~70/20/10) and QUALITY-BAR §6.
 > **Rules:** fakes > mocks; ≥75% coverage on new code (JaCoCo); unit tests on the JVM, integration on Robolectric/in-memory Room, UI with Compose semantics. Google test sizes (`Small`/`Medium`/`Large`) drive placement.
 
 ## Unit Test <!-- 14 -->
@@ -87,7 +87,7 @@ Verify each forward migration against the exported schema JSON (`room.schemaLoca
 ```
 Commit the generated `schemas/` directory; `runMigrationsAndValidate` asserts the post-migration schema matches the target version's exported schema exactly.
 
-## Coverage <!-- 11 -->
+## Coverage <!-- 10 -->
 JaCoCo reports unit + instrumented coverage; enforce **≥75% on new code** (QUALITY-BAR §6) via a Gradle `jacocoTestReport` + `ratchet` gate in CI, failing the build below the floor.
 ```kotlin
 jacoco { toolVersion = "0.8.12" }

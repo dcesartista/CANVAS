@@ -72,7 +72,16 @@ If you already have the CANVAS repo cloned, run the CLI directly:
 ./scripts/canvas export --host opencode   --global --repo <CANVAS git URL>
 ./scripts/canvas export --host claude-code --global
 ./scripts/canvas update                            # same as the installer's --update
+./scripts/canvas doctor                            # check installs still resolve
 ```
+
+### If skills stop finding the corpus
+
+A claude-code install records an **absolute path** into `~/.canvas/src/canvas`
+inside every skill body, so clearing that cache leaves the skills pointing at
+nothing — silently: the agent simply finds no corpus. `canvas doctor` reports
+that, flags installs behind their recorded commit, and warns when the cache has
+local modifications that `--update`'s `git reset --hard` would discard.
 
 ### After any install
 
@@ -92,7 +101,6 @@ CANVAS is written **once, host-neutral** and rendered to whichever agent host yo
 ```
 core/            the canonical, host-neutral WHAT — manifest (registry) + skills + agents
 adapters/        the per-host HOW — render core/ into each host's on-disk format
-distribution/    pre-built, committed bundles (e.g. the Claude plugin)
 lib/             the knowledge: android/, process/, cross-cutting/
 scripts/canvas   the CLI that renders core/ + corpus into an adapter's format
 scripts/install-canvas.sh  the curl | sh bootstrap (delegates to scripts/canvas)
@@ -115,7 +123,7 @@ cross-cutting     lib/cross-cutting/     the shared "what": API contract, checkl
 
 ### The corpus & the reference seam
 
-The impl corpus lives in `lib/android/reference/*-impl.md` (Clean architecture, DI, concurrency, security, performance, testing, release, …) alongside `lib/android/skills/` (low-level `android-create-*` procedures). The 4 workflow skills orchestrate; each host's adapter exposes this corpus to the agent — via a `references.canvas` git reference (opencode), a bundled plugin corpus (Claude plugin), or a reference-root preamble (claude-code).
+The impl corpus lives in `lib/android/reference/*-impl.md` (Clean architecture, DI, concurrency, security, performance, testing, release, …) alongside `lib/android/skills/` (low-level `android-create-*` procedures). The 4 workflow skills orchestrate; each host's adapter exposes this corpus to the agent — via a `references.canvas` git reference (opencode) or a reference-root preamble (claude-code).
 
 ### The process
 

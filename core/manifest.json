@@ -11,50 +11,62 @@
       "kind": "workflow",
       "user_invocable": true,
       "source": "core/skills/build-android-starter.md",
-      "spawns": "android-scaffold-worker"
+      "spawns": "android-scaffold-worker",
+      "tools": "Agent, AskUserQuestion, Bash, Read"
     },
     {
       "id": "build-android-feature",
       "kind": "workflow",
       "user_invocable": true,
       "source": "core/skills/build-android-feature.md",
-      "spawns": "android-feature-worker"
+      "spawns": "android-feature-worker",
+      "tools": "Agent, AskUserQuestion, Bash, Read"
     },
     {
       "id": "audit",
       "kind": "workflow",
       "user_invocable": true,
       "source": "core/skills/audit.md",
-      "spawns": "auditor"
+      "spawns": "auditor",
+      "tools": "Agent, Bash, Read"
     },
     {
       "id": "perf-review",
       "kind": "workflow",
       "user_invocable": true,
       "source": "core/skills/perf-review.md",
-      "spawns": "perf-scorer"
+      "spawns": "perf-scorer",
+      "tools": "Agent, Bash, Read"
     }
   ],
   "agents": [
     {
       "id": "android-scaffold-worker",
       "kind": "worker",
-      "source": "core/agents/android-scaffold-worker.md"
+      "source": "core/agents/android-scaffold-worker.md",
+      "tools": "Read, Write, Edit, Glob, Grep, Bash",
+      "read_only": false
     },
     {
       "id": "android-feature-worker",
       "kind": "worker",
-      "source": "core/agents/android-feature-worker.md"
+      "source": "core/agents/android-feature-worker.md",
+      "tools": "Read, Write, Edit, Glob, Grep, Bash",
+      "read_only": false
     },
     {
       "id": "auditor",
       "kind": "worker",
-      "source": "core/agents/auditor.md"
+      "source": "core/agents/auditor.md",
+      "tools": "Read, Glob, Grep, Bash",
+      "read_only": true
     },
     {
       "id": "perf-scorer",
       "kind": "worker",
-      "source": "core/agents/perf-scorer.md"
+      "source": "core/agents/perf-scorer.md",
+      "tools": "Read, Glob, Grep, Bash",
+      "read_only": true
     }
   ]
 }

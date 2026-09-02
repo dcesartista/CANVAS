@@ -1,6 +1,6 @@
 ---
 name: android-create-dto
-description: Create a Data Transfer Object in the Android family's data tier — only when the contract client does NOT already generate the payload type (contract-first guardrail).
+description: Create a Data Transfer Object in the Android data layer — only when the contract client does NOT already generate the payload type (contract-first guardrail).
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:
@@ -14,7 +14,7 @@ Create one **DTO**. Create-only — if it exists, STOP.
 
 ## Procedure
 1. `section-query` `reference/data-theory.md` → `## DTO` and `lib/android/reference/data-impl.md` → `## DTO`.
-2. **Contract-first guardrail:** if the payload type is (or should be) generated from the contract, STOP — never hand-write DTOs for contract-covered payloads ([QUALITY-BAR](../../../../../QUALITY-BAR.md) §3).
+2. **Contract-first guardrail:** if the payload type is (or should be) generated from the contract, STOP — never hand-write DTOs for contract-covered payloads ([QUALITY-BAR](../../../../QUALITY-BAR.md) §3).
 3. Write `data/<feature>/<X>Dto.kt`: a plain data holder mirroring the payload; validate where the source is untrusted; stays in the data tier.
 
 ## Output

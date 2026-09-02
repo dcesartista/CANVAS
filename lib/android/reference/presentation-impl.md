@@ -1,6 +1,6 @@
 # Android — presentation impl (Compose + StateFlow + Hilt)
 
-> How the presentation Terms ([presentation-theory.md](../../presentation-theory.md)) are written in native Android, per Google's [App Architecture Guide](https://developer.android.com/topic/architecture) and [UDF](https://developer.android.com/topic/architecture/ui-layer#udf).
+> How the presentation Terms ([presentation-theory.md](../../../reference/presentation-theory.md)) are written in native Android, per Google's [App Architecture Guide](https://developer.android.com/topic/architecture) and [UDF](https://developer.android.com/topic/architecture/ui-layer#udf).
 > **Rules (QUALITY-BAR §1, §5):** `presentation` depends on `domain` only; no ViewModel knows `Activity`/`Context`; state flows **down** via `StateFlow`, events flow **up** via VM functions. All Compose code lives here.
 
 ## ViewModel <!-- 25 -->
@@ -40,7 +40,7 @@ data class ProductListUiState(
 ```
 Annotate `@Immutable` (Compose) so recomposition skips stable fields. For distinct screens prefer a `sealed interface` (e.g. `Loading`/`Content`/`Error`) and `when` in the screen.
 
-## One-shot Event <!-- 13 -->
+## One-Shot Event <!-- 13 -->
 Transient occurrences (toasts, navigate after login, snackbars) that must **not** survive rotation are delivered once via a `Channel`/`SharedFlow` and replayed with `replay=0`. They are separate from `uiState` (state is for rendering; events are for one-time side effects).
 ```kotlin
 private val _events = Channel<UiEvent>(Channel.BUFFERED)
@@ -53,7 +53,7 @@ sealed interface UiEvent { data class ShowSnackbar(val msg: String) : UiEvent }
 ```
 Old "event as state + consume" is discouraged; `Channel` gives `trySend`/`receiveAsFlow` semantics with `shareIn` if multiple collectors are needed.
 
-## Unidirectional Data Flow <!-- 10 -->
+## Unidirectional Data Flow <!-- 12 -->
 State travels **down** via the single `StateFlow` and is collected lifecycle-aware; events travel **up** through VM functions — never the reverse, and no `var` state at the top of a composable. This makes the screen a pure function of state (`ProductListScreen(state, onRefresh)`).
 ```kotlin
 @Composable fun ProductListScreen(
@@ -80,7 +80,7 @@ fun ProductListRoute(
 ```
 `collectAsStateWithLifecycle` (from `androidx.lifecycle:lifecycle-runtime-compose`) stops collecting when the composable leaves the idle/started window, saving CPU on backgrounded screens.
 
-## Material 3 Theme <!-- 11 -->
+## Material 3 Theme <!-- 16 -->
 Theming is a Compose `@Composable` wrapper over `MaterialTheme`. CANVAS apps do **not** hand-write a theme — they consume the swappable UI library **`ink-basic`** (the Android realization of the agnostic Palette contract). `CanvasTheme` from `com.canvas.ink.basic.palette` supplies a complete light/dark/highContrast palette and the M3 bridge (color scheme + typography) mapped from T3 semantic tokens:
 ```kotlin
 import com.canvas.ink.basic.palette.CanvasTheme
@@ -105,7 +105,7 @@ Wrap `MainActivity.setContent { CanvasTheme { AppNavHost() } }`. To rebrand, pas
 
 Pull it in as a dependency (composite build / submodule or published Maven — see `ink-basic/CONSUMING.md`). The contract these realize lives in the agnostic sibling **Palette** repo (`docs/0001-ui-token-contract.md`, `docs/0002-component-inventory.md`); CANVAS owns the non-themeable core-correctness floor only.
 
-## ink-basic self-check <!-- 6 -->
+## ink-basic self-check <!-- 21 -->
 CANVAS is the tool that *builds* the UI, so it enforces the seam itself — no separate linter needed. After writing a screen, **`Grep` the generated file and reject it** if any violation below appears; fix and re-verify before reporting done (mirrors the build/test gates). These are the only valid escape hatches and must not be used lightly:
 1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ink-basic names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`, `Scaffold`) may remain raw.
 2. **Raw primitive color/hex in a component** — a literal `Color(0x...` or `Color.Red`/`Color.White` used as fill/text/border/bg. Use a T3 semantic color via `LocalSemanticTokens` (e.g. `t.color.textPrimary`, `t.color.bgSurface`, `t.color.error`), never a hex literal.
@@ -134,7 +134,7 @@ val visibleItems by remember(state.items) { derivedStateOf { state.items.filter 
 ```
 `rememberSaveable` survives configuration changes via the saved-state registry; `remember` does not — choose per data lifetime.
 
-## Lifecycle & Collection <!-- 7 -->
+## Lifecycle & Collection <!-- 6 -->
 Collect flows only within `LaunchedEffect`/`collectAsStateWithLifecycle` in the composition. Avoid collecting in `init` for long-lived events; stop at the right lifecycle boundary so we don't process work while paused/destroyed. `viewModelScope` auto-cancels on clear; `lifecycleScope` ties to the UI lifecycle.
 ```kotlin
 LaunchedEffect(Unit) { uiState.collect { /* one-time joins, analytics */ } }

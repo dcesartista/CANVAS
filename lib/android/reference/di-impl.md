@@ -1,6 +1,6 @@
 # Android — DI impl (Hilt)
 
-> How dependency injection Terms ([di-theory.md](../../di-theory.md)) are written in native Android with **Hilt** (compile-time DI over Dagger).
+> How dependency injection Terms ([di-theory.md](../../../reference/di-theory.md)) are written in native Android with **Hilt** (compile-time DI over Dagger).
 > **Rules (QUALITY-BAR §1, §7):** constructor injection everywhere (`@Inject constructor`); modules wire interfaces → impls via `@Binds`; scoping is deliberate; tests override at the `@Singleton` component (`@TestInstallIn`) or per-test via the generated Hilt test component. No ServiceLocator/globals for app objects.
 
 ## Hilt Application <!-- 17 -->
@@ -76,7 +76,7 @@ class Unscoped @Inject constructor()                            // new per injec
 ```
 Wrong scoping is a subtle memory-leak source: never `@Singleton`-scope something that holds an `Activity`/`Context` beyond app scope, and keep `@Inject constructor` classes with no scoping annotation by default.
 
-## Testing Overrides <!-- 11 -->
+## Testing Overrides <!-- 10 -->
 Tests replace bindings at the root `SingletonComponent` with a fake install, or use Hilt's `@TestInstallIn` for a fake module; per-test overrides bind a fake where the real impl is required.
 ```kotlin
 @TestInstallIn(components = [SingletonComponent::class], replaces = RepositoryModule::class)

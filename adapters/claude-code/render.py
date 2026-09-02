@@ -69,7 +69,7 @@ def _reference_root(root: Path, global_install: bool) -> str:
 
 
 def _with_reference_preamble(body: str, root: Path, siblings: dict | None = None) -> str:
-    line = f"{MARKER} CANVAS reference corpus root: {root} (read-only; lib/android/reference/*-impl.md, lib/android/skills/, lib/process/)."
+    line = f"{MARKER} CANVAS reference corpus root: {root} (read-only; lib/android/reference/*-impl.md, lib/android/skills/, lib/process/gates/)."
     for name, info in (siblings or {}).items():
         loc = info.get("path") or info.get("url")
         if loc:
@@ -84,8 +84,9 @@ def _skill_front_matter(meta: dict, skill_id: str) -> str:
     out = "---\n"
     out += _yaml_scalar("name", name)
     out += _yaml_scalar("description", meta["description"])
-    out += _yaml_scalar("slash_command", f"/{name}")
-    out += _yaml_scalar("usage", "<project-intent>")
+    tools = meta.get("tools")
+    if tools:
+        out += _yaml_scalar("allowed-tools", tools)
     out += "---\n"
     return out
 
@@ -97,8 +98,13 @@ def _agent_front_matter(meta: dict) -> str:
     model = meta.get("model")
     if model:
         out += _yaml_scalar("model", model)
-    out += _yaml_scalar("mode", "subagent")
-    out += _yaml_scalar("tools", "Read, Write, Edit, Glob, Grep, Bash")
+    tools = meta.get("tools")
+    if not tools:
+        raise ValueError(
+            f"agent '{meta['id']}' has no tools grant in core/manifest.json — "
+            "refusing to guess (a read-only agent must never receive Write/Edit)"
+        )
+    out += _yaml_scalar("tools", tools)
     out += "---\n"
     return out
 

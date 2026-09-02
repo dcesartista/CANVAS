@@ -42,6 +42,6 @@ Custom gestures **ship with accessible alternatives** (WCAG 2.2): swipe-to-dismi
 ## Automated + Manual <!-- 3 -->
 Accessibility is verified by **both an automated gate and a manual pass** (QUALITY-BAR §5): lint/checks (touch targets, missing descriptions, contrast probes) run in CI and fail the build; narrated passes (TalkBack + large scale) are scheduled like QA because only a human ear hears an announcement that reads in the wrong order. Automated catches regressions; manual catches "perfect metrics, unusable flow".
 
-## Representational Care <!-- 4 -->
+## Representational Care <!-- 3 -->
 Media and language are handled **beyond test coverage** (WCAG 1.2/1.4.5/3.1): video carries subtitles, images carry meaning not decoration, and text is locale-correct — RTL, locale-sensitive digits and plurals (a raw `"$count items"` concatenation breaks half the world, not just screen readers). This is where accessibility, i18n, and quality genuinely meet: an app is accessible in the language it is shown in, not the one it was written in.
 

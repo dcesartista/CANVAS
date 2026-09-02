@@ -39,6 +39,6 @@ State survives **configuration changes and process death** (QUALITY-BAR §1). Co
 ## Lifecycle Awareness <!-- 3 -->
 **Work follows the screen's lifecycle** (QUALITY-BAR §1): collection stops when the UI leaves, and active work is scoped so a backgrounded screen doesn't burn battery or network. The platform provides the scopes (`viewModelScope`/`lifecycleScope`); the rule is to let them own the coroutines and never leak a scope upward. UI that "keeps running" after leaving the screen is a battery-and-memory defect.
 
-## Validation Location <!-- 4 -->
+## Validation Location <!-- 3 -->
 **User input is validated after the event, in the state holder** — not in a separate mutable layer the screen juggles. The result (valid · invalid-reason) becomes **state**, so the screen renders it and accessibility announces it. Instant per-field feedback and async server validation coexist here; the UI never decides "this is invalid" on its own.
 

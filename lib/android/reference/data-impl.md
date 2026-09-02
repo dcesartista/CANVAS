@@ -1,6 +1,6 @@
 # Android — data impl (Retrofit + Room + kotlinx.serialization)
 
-> How the data Terms ([data-theory.md](../../data-theory.md)) are written in native Android.
+> How the data Terms ([data-theory.md](../../../reference/data-theory.md)) are written in native Android.
 > **Rules (QUALITY-BAR §1, §2):** Retrofit/Room types live **only** here; `domain` imports none of them. Frontend maps DTOs ⇄ domain via mappers in `data`. Frontend persists locally with Room and talks to the backend with the **generated client** from the OpenAPI contract (nos hand-written DTOs) — though hand-written examples below show the mapping shape.
 
 ## DTO <!-- 13 -->
@@ -87,6 +87,24 @@ class ProductRemoteImpl(private val api: GeneratedProductsApi) : ProductRemote {
 ```
 The **Local** source is usually the DAO directly; wrap it when you want cache timestamps or write-through policy at the source level rather than the repo.
 
+## DataStore <!-- 18 -->
+**Proto DataStore** is the store for preferences and small typed app state (QUALITY-BAR §2) — never `SharedPreferences`, which has no transactional guarantee, no typing, and a blocking read on the main thread. A schema-backed store gives a typed object, an atomic `updateData`, and a `Flow` the repository layer can expose like any other source.
+```kotlin
+val Context.settingsStore: DataStore<Settings> by dataStore(
+  fileName = "settings.pb",
+  serializer = SettingsSerializer,          // generated from settings.proto
+)
+
+class SettingsLocal @Inject constructor(private val store: DataStore<Settings>) {
+  val settings: Flow<Settings> = store.data                       // observable, typed
+  suspend fun setTheme(mode: ThemeMode) =
+    store.updateData { it.toBuilder().setTheme(mode).build() }     // atomic read-modify-write
+}
+```
+Reads are a `Flow`, so a preference change propagates like any other data change — no manual listener, no stale copy held in a ViewModel.
+
+**Secrets never go here in plaintext.** Access/refresh tokens are encrypted at rest with a Keystore-backed key (see `## Network & Auth` and `security-impl.md` → `## Secure Token Storage`); `security-crypto`/`EncryptedSharedPreferences` is deprecated and must not be introduced. DataStore holds preferences; the token store holds credentials, and the two are not the same file.
+
 ## Repository Implementation <!-- 22 -->
 `@Inject constructor` class that implements the domain interface, composing remote + local + mappers into an **offline-first SSOT**: always emit from Room immediately, then refresh from the network and write through. Errors map to domain `Result`/`DomainError`.
 ```kotlin
@@ -151,7 +169,7 @@ Room.databaseBuilder(ctx, AppDatabase::class.java, "app.db")
 ```
 `AutoMigration` (with `@AutoMigration(from=1,to=2)` + specs) covers simple additive changes; keep explicit migrations for anything non-trivial and test each one against the exported schema.
 
-## Result Wrapper <!-- 15 -->
+## Result Wrapper <!-- 14 -->
 The data layer normalizes every boundary outcome into a `Result`/sealed either type so the domain never sees bare exceptions as control flow (QUALITY-BAR §2). One-shot network calls return `Result<T>`; streams emit domain values directly with failures represented as state, not thrown.
 ```kotlin
 sealed interface ApiOutcome<out T> {

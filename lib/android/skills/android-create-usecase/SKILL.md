@@ -1,6 +1,6 @@
 ---
 name: android-create-usecase
-description: Create a domain Use Case (one user intent) in the Android family — constructor-injected ports, suspend operator invoke.
+description: Create a domain Use Case (one user intent) in the Android stack — constructor-injected ports, suspend operator invoke.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:

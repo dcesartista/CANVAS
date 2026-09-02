@@ -1,6 +1,6 @@
 ---
 name: android-create-datasource
-description: Create a Data Source (remote or local boundary) in the Android family's data tier — suspend/Flow, explicit dispatcher boundary, no blocking.
+description: Create a Data Source (remote or local boundary) in the Android data layer — suspend/Flow, explicit dispatcher boundary, no blocking.
 user-invocable: false
 tools: Read, Write, Glob, Grep
 related_skills:
@@ -14,7 +14,7 @@ Create one **Data Source** (remote or local boundary). Create-only — if it exi
 
 ## Procedure
 1. `section-query` `reference/data-theory.md` → `## Data Source` and `lib/android/reference/data-impl.md` → `## Data Source`.
-2. Write `data/<feature>/<X>DataSource.kt`: exposes `suspend`/`Flow` operations over its transport (remote via the generated/contract client; local via `android-create-datastore`). Coroutines/Flow only; explicit dispatcher at the boundary; never blocks ([QUALITY-BAR](../../../../../QUALITY-BAR.md) §3).
+2. Write `data/<feature>/<X>DataSource.kt`: exposes `suspend`/`Flow` operations over its transport (remote via the generated/contract client; local via `android-create-datastore`). Coroutines/Flow only; explicit dispatcher at the boundary; never blocks ([QUALITY-BAR](../../../../QUALITY-BAR.md) §3).
 3. Data-tier types stay here; never leak outward.
 
 ## Output

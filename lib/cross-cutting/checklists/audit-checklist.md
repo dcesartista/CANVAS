@@ -1,13 +1,13 @@
 # Audit checklist — the Quality Bar as checkable items
 
-> A checklist form of [QUALITY-BAR](../QUALITY-BAR.md) for the **auditor** to verify mechanically. One item per rule; fill pass/partial/fail + file:line evidence.
-> This lives in cross-cutting because the checklist itself is universal; the concrete syntax/commands are per-stack (family).
+> A checklist form of [QUALITY-BAR](../../../QUALITY-BAR.md) for the **auditor** to verify mechanically. One item per rule; fill pass/partial/fail + file:line evidence.
+> This lives in cross-cutting because the checklist itself is universal; the concrete syntax/commands live in the Android tier.
 
 ## 1. Architecture
 - [ ] Strict Clean: `domain` pure Kotlin — zero `android.*` imports (forbidden-import rule on).  (§1)
 - [ ] Dependency rule: UI/data → domain abstractions only.  (§1)
 - [ ] UDF: state flows one way; ViewModel reduces; `collectAsStateWithLifecycle` renders.  (§1)
-- [ ] `minSdk 34+`, `targetSdk` latest, single-activity + Navigation 3.  (§1)
+- [ ] `minSdk 34+`, `targetSdk` latest, single-activity + Navigation Compose 2.x with `@Serializable` type-safe routes (no string routes).  (§1)
 
 ## 2. Data & persistence
 - [ ] Room entities ↔ DTOs mapped in `data`; no leak into `domain`.  (§2)

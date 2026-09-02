@@ -1,6 +1,6 @@
 ---
 name: android-create-test
-description: Create unit + UI tests for an artifact in the Android family — fakes over mocks, ≥75% coverage on new code, semantics-based UI assertions.
+description: Create unit + UI tests for an artifact in the Android stack — fakes over mocks, ≥75% coverage on new code, semantics-based UI assertions.
 user-invocable: false
 tools: Read, Write, Glob, Grep, Bash
 related_skills:
@@ -16,7 +16,7 @@ Create **tests** for one artifact (unit + UI where applicable). Create-only — 
 artifact (entity / use case / repository / view-model / screen) · feature/package · the cases.
 
 ## Procedure
-1. `section-query` `lib/android/reference/testing-impl.md` → `## Unit Test` / `## UI Test` (+ [QUALITY-BAR](../../../../../QUALITY-BAR.md) §6).
+1. `section-query` `lib/android/reference/testing-impl.md` → `## Unit Test` / `## Compose UI Test` (+ [QUALITY-BAR](../../../../QUALITY-BAR.md) §6).
 2. **Unit:** JUnit + coroutines-test (dispatcher control) + Turbine for flows; **fakes** over mocks for domain/data.
 3. **Integration:** in-memory datastore for queries; real local/network boundaries (not mocks).
 4. **UI:** framework UI-test API with **semantics-based assertions**; a few full-flow tests.

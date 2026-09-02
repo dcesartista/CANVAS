@@ -1,6 +1,6 @@
 # Android — API/contract impl (Retrofit + OpenAPI)
 
-> How the wire contract Terms ([api-theory.md](../../api-theory.md)) are written in native Android with **Retrofit + OkHttp + kotlinx.serialization**, client generated from the OpenAPI spec (QUALITY-BAR §2, §3).
+> How the wire contract Terms ([api-theory.md](../../../reference/api-theory.md)) are written in native Android with **Retrofit + OkHttp + kotlinx.serialization**, client generated from the OpenAPI spec (QUALITY-BAR §2, §3).
 > **Rules (QUALITY-BAR §3):** spec-first — the client is *generated*, never hand-written DTOs; every DTO deserializes permissively; errors are `application/problem+json`; pagination is opaque-cursor from day one; unsafe writes carry an `Idempotency-Key`; transient failures retry with bounded backoff honoring `Retry-After`.
 
 ## Contract-First <!-- 18 -->
@@ -141,7 +141,7 @@ class AuthInterceptor @Inject constructor(
 ```
 The reissued request after a refresh gets the *new* token via the same provider, keeping auth code in exactly one class.
 
-## Retry & Backoff <!-- 19 -->
+## Retry & Backoff <!-- 18 -->
 Transient failures (timeouts, 429, 5xx) are **retried with bounded exponential backoff**, honoring `Retry-After` when present (QUALITY-BAR §3); definitive 4xx errors surface immediately and are never blindly retried. OkHttp's `RetryOnConnectionFailure` plus a small retry helper on top handle the idempotent-safe cases, always thread-safe with idempotency keys and never retrying a closed body without re-issuing the request.
 ```kotlin
 suspend fun <T> withRetry(

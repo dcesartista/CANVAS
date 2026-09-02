@@ -39,6 +39,6 @@ Code that suspends is tested with a **virtual-time dispatcher** that gives deter
 ## Contract Test <!-- 3 -->
 Consumer-driven verification across the API boundary (Pact, QUALITY-BAR §6): the app expresses what it needs; the server verifies it in CI. It catches breaking changes between app and API **without** a live environment and locks only the behavior the app actually uses — complementing the OpenAPI spec: the spec defines the shape; the contract test verifies runtime conformance.
 
-## Fast Feedback <!-- 4 -->
+## Fast Feedback <!-- 3 -->
 The suite's job is **feedback velocity**: a change surfaces its breakage in minutes on a laptop, not hours in a pipeline ([local testing](https://developer.android.com/training/testing/local-tests)). That is what the pyramid is for — the base answers "did my edit break anything?" in milliseconds on every save. When a suite gets slow it stops being run on save, and its power silently decays.
 

@@ -39,6 +39,6 @@ The **stable, client-branchable identifier** of a problem (`SESSION_EXPIRED`) in
 ## Retry & Backoff <!-- 3 -->
 Transient failures (timeouts, 429, 5xx) are **retried with bounded backoff**, honoring `Retry-After` when present (QUALITY-BAR §3). Idempotency keys make retries safe; backoff makes them polite. The client distinguishes *retryable* (network, 429/503 — retry with backoff) from *definitive* (4xx — surface, never retry blindly); retrying a 400 is how clients wedge themselves.
 
-## Evolvability <!-- 4 -->
+## Evolvability <!-- 3 -->
 A contract is **built to change additively**: new fields are optional, new endpoints are additive, fields are removed only in a new major (QUALITY-BAR §3). Clients ignore unknown fields (never crash on them), which is exactly why generated DTOs are deserialized permissively. Combined with path versioning, this keeps old clients safe and new features deployable without coordinated release.
 

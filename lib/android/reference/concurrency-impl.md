@@ -1,6 +1,6 @@
 # Android — concurrency impl (Coroutines & Flow)
 
-> How coroutine-based concurrency Terms ([concurrency-theory.md](../../concurrency-theory.md)) are written in native Android with **kotlinx.coroutines + kotlinx.flow** (QUALITY-BAR §1, §3).
+> How coroutine-based concurrency Terms ([concurrency-theory.md](../../../reference/concurrency-theory.md)) are written in native Android with **kotlinx.coroutines + kotlinx.flow** (QUALITY-BAR §1, §3).
 > **Rules (QUALITY-BAR §3):** every coroutine lives in a structured scope tied to a real lifetime (`viewModelScope`/`lifecycleScope`); `GlobalScope` forbidden; dispatch boundaries at data edges, never in domain; main thread never blocked; UI state is `StateFlow` + `collectAsStateWithLifecycle`, one-shot events are `SharedFlow`; dispatchers injected and swapped under `kotlinx-coroutines-test`.
 
 ## Structured Concurrency <!-- 14 -->
@@ -103,7 +103,7 @@ When a producer outruns a consumer the policy is **explicit** (kotlinx.flow buff
 ```
 `debounce`/`conflate`/`buffer` are chosen deliberately; an unexplicit stream that silently drops or queues is a latent jank or stale-UI bug.
 
-## Testing Dispatchers <!-- 19 -->
+## Testing Dispatchers <!-- 18 -->
 Deterministic tests swap real dispatchers for **kotlinx-coroutines-test** `StandardTestDispatcher` with virtual time (QUALITY-BAR §6). Every class that dispatches takes its `CoroutineDispatcher` via injection so tests drive it forward manually with `advanceUntilIdle`/`runTest`, producing deterministic timing without sleeps or flakiness.
 ```kotlin
 @OptIn(ExperimentalCoroutinesApi::class)

@@ -1,6 +1,6 @@
 # Android — infrastructure impl (composition root)
 
-> How the cross-cutting infrastructure Terms ([infrastructure-theory.md](../../infrastructure-theory.md)) are assembled in native Android, with **Hilt** as the composition root (QUALITY-BAR §1, §3, §4, §7).
+> How the cross-cutting infrastructure Terms ([infrastructure-theory.md](../../../reference/infrastructure-theory.md)) are assembled in native Android, with **Hilt** as the composition root (QUALITY-BAR §1, §3, §4, §7).
 > **Rules (QUALITY-BAR §7):** the dependency graph is built in one place (`CanvasApp` + Hilt modules); config is typed and validated at boot; logging/analytics flow through injected abstractions; the network stack is one configured client; the app boots in a fixed, dependency-safe order.
 
 ## Composition Root <!-- 14 -->
@@ -133,7 +133,7 @@ The transport stack is **one coherent client assembled at infra** (QUALITY-BAR �
 ```
 Scattered ad-hoc HTTP is the anti-layer this single configured client prevents.
 
-## App Bootstrap <!-- 20 -->
+## App Bootstrap <!-- 19 -->
 The app **boots in a fixed, dependency-safe order** (QUALITY-BAR §1): initialize the graph, validate config, start telemetry/crash, then enter the first screen — with anything slow deferred past first frame (performance-theory Cold Start). Bootstrap is explicit and single-location; no feature initializes itself on import.
 ```kotlin
 class AppBootstrapper @Inject constructor(

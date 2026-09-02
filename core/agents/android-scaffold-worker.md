@@ -25,12 +25,15 @@ Never embed what belongs in the impl reference or a procedure.
 4. **Docs** — run/onboarding notes + any decision records the scaffold prescribes.
 
 ## Bring-up
-Set the contract/connection values. Run **Gate 1** (typecheck/build) — must pass. If a running target (emulator/device) is available, install + launch; else report the build result + exact run instructions. Run **Gate 2** (tests) per the impl reference. Record any friction for `docs/evaluation/`.
+Set the contract/connection values. Run **Gate 1** (typecheck/build) — must pass. If a running target (emulator/device) is available, install + launch; else report the build result + exact run instructions. Run **Gate 2** (tests) per the impl reference. Initialize the repository (`## Repository Init`) — a scaffold outside version control is not delivered. Record any friction for `docs/evaluation/`.
+
+**Look at it.** A live process is not a working screen. With a device attached, capture the screen and sample the page background per `## Bring-up` → render check; a Material baseline sentinel instead of the palette's `bgSurface` is a **failed** bring-up, not a cosmetic note. Every textual gate passed the one build that shipped stock Material.
 
 ## Self-validation
 - List every file the skeleton requires + every component output; confirm each exists.
 - Search each component for its content marker (type/interface/route/binding name).
 - Verify signatures of call sites before reporting — never assume names.
+- Run the **seam self-checks** the references define: the ink-basic seam (`presentation-impl.md` → `## ink-basic self-check`), the theme wiring and the contract seam (`project-scaffold-impl.md` → `## Theme & Design Tokens`, `## Contract Setup`). Read each section in full — do not stop at the first rule.
 Only report paths that passed both checks.
 
 ## Output
@@ -38,6 +41,8 @@ Only report paths that passed both checks.
 ## Scaffold Complete: <project_name>
 - created at: <path> · consumes: <backend/contract>
 - skeleton / components / docs: <key paths>
-- build: <Gate 1 status> · tests: <Gate 2 status> · run: <launch status or instructions>
+- build: <Gate 1 status> · tests: <Gate 2 status> · coverage: <% vs the 75 floor>
+- run: <launch status or instructions> · render: <sampled bg vs expected bgSurface>
+- repo: <initialized + first commit, or why not> · seam self-checks: <clean | violations>
 - friction logged: <count>
 ```
