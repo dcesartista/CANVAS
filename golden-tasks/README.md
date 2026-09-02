@@ -13,7 +13,9 @@
 ## The tasks
 
 ### GT-A1. Scaffold a runnable production scaffold
-Run `/build-android-starter` with a chosen package + app name. **Exit criterion:** `./gradlew assembleDebug testDebugUnitTest ktlintCheck detekt lint` all green; project launches on an emulator (Bring-up). Scored on: project structure §1, tooling/version catalog §7, auth baseline §4, DI §1, coverage floor §6.
+Run `/build-android-starter` with a chosen package + app name. **Exit criterion:** `./gradlew assembleDebug testDebugUnitTest ktlintCheck detekt lint jacocoCoverageVerification` all green; project launches on an emulator; **the launched app renders the palette, not Material baseline** (sample the page background — see `project-scaffold-impl.md` → `## Bring-up`); the project is a git repository with a first commit. Scored on: project structure §1, tooling/version catalog §7, auth baseline §4, DI §1, coverage floor §6, design-system seam §5, delivery §8.
+
+> The 2026-09-02 run passed the build/test/lint half and still shipped stock Material, a forked design system, an unmeasured coverage floor and no repository — see [docs/evaluation/GT-A1-2026-09-02.md](../docs/evaluation/GT-A1-2026-09-02.md). The render, coverage and repository clauses above exist because of it.
 
 ### GT-A2. Build a bounded domain → data → presentation feature
 Scaffold, then add a feature with a real entity (e.g. an `Item` with an `ItemId`), a repository (domain interface + Room/Retrofit impl + mapper), a use case, and a Compose screen wired to a ViewModel. **Exit criterion:** feature compiles, is unit-tested (≥75% new-code coverage), UI test renders it. Scored on: strict-Clean layer order §1, purity §1, UDF §1, testing §6, accessibility §5.

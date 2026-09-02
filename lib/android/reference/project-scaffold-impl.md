@@ -112,7 +112,7 @@ class LoginViewModel @Inject constructor(private val login: Login) : ViewModel()
 ```
 The nav guard reads `AuthViewModel.uiState` and routes to `LoginRoute` when unauthenticated; a 401 mid-session triggers the `Authenticator` refresh then redirect to re-login if the refresh fails.
 
-## Contract Setup <!-- 13 -->
+## Contract Setup <!-- 15 -->
 Generate the **Kotlin client** (`openapi-generator` kotlin/retrofit) from the backend OpenAPI 3.1 spec into an `api/`/`generated/` package via a `gen:contract` Gradle task (QUALITY-BAR §3). **No hand-written DTOs**; the client is regenerated when the contract changes.
 ```kotlin
 tasks.register<JavaExec>("genContract") {
@@ -124,6 +124,8 @@ tasks.register<JavaExec>("genContract") {
 }
 ```
 Regeneration is base64-stable/no-op when the contract is unchanged; commit the generated sources so CI doesn't rebuild against a moving spec.
+
+**Self-check the contract seam.** GT-A1 shipped 4 hand-written DTO files and no generator task, against §3's "no hand-written DTOs" — the discipline was dropped without anything noticing. After scaffolding, `grep` for `@Serializable data class .*Dto` outside the generated output directory. Every hit must be either generated, or justified in writing as a payload the contract genuinely does not describe. If the backend publishes no OpenAPI document, say so explicitly and record it as a deviation — do not silently hand-author the client and leave `## Contract Setup` looking satisfied.
 
 ## Theme & Design Tokens <!-- 21 -->
 Compose UI consumes the **swappable `ink-basic` library** (the Android realization of the agnostic Palette contract) rather than hand-writing a theme. `CanvasTheme` from `com.canvas.ink.basic.palette` provides light/dark/highContrast palettes mapped to an M3 scheme + typography from T3 semantic tokens; components read tokens via `LocalSemanticTokens`. No raw `px`/hex/Dp in components (QUALITY-BAR §5); **no per-project `ui/theme/` color/type files** — the theme IS ink-basic.
@@ -146,7 +148,7 @@ import com.canvas.ink.basic.palette.CanvasTheme
 
 To rebrand, pass a different `Palette` (e.g. `CanvasTheme(palette = myPalette)`); components are not re-themed in place. Type/size/color tokens live in ink-basic's T3 `token/` layer (see `ink-basic/CONSUMING.md`).
 
-## Bring-up <!-- 14 -->
+## Bring-up <!-- 26 -->
 A "running instance" = a **debug APK installed on an emulator/device**, or a green build when no device is available. Concrete steps the worker takes from a clean checkout:
 ```bash
 # 1. Point at a backend (local.properties or env)
@@ -160,10 +162,50 @@ adb shell am start -n com.example.canvas/.MainActivity
 ```
 If no device is attached, report the successful `assembleDebug` + exact run instructions and note the Android SDK/JDK prerequisites (JDK 17, SDK at `ANDROID_HOME`). Never claim a running app without either an installed launch or a verified green build.
 
-## Quality Gates & CI <!-- 7 -->
+**Render check (required when a device is attached).** A green build proves the app compiles, not that it looks like the palette. GT-A1 shipped stock Material lavender past every textual gate. After launch, capture the screen and sample the page background:
+```bash
+adb exec-out screencap -p > /tmp/render.png
+python3 - <<'EOF'
+from PIL import Image                      # pip install pillow, or sample with any tool
+im = Image.open("/tmp/render.png").convert("RGB")
+w, h = im.size
+print("background: #%02X%02X%02X" % im.getpixel((int(w*0.06), h//2)))
+EOF
+```
+**Reject the build** if that pixel is an M3 baseline sentinel — `#FEF7FF` (light) or `#141218` (dark) — instead of the palette's `bgSurface`. A baseline value means the theme is not reaching the widget tree: usually an incomplete T2 bridge, occasionally a missing `CanvasTheme` root. Report the sampled value against the expected one; never report "launched successfully" on the strength of the process being alive.
+
+## Repository Init <!-- 9 -->
+A scaffold is not delivered until it is **under version control** (QUALITY-BAR §8). GT-A1 produced a complete app with no `.git`, which makes trunk-based development, Conventional Commits and CI gates unreachable by construction — §8 cannot be scored at all.
+```bash
+git init -b main
+# .gitignore must exclude: build/, .gradle/, local.properties, *.keystore, .idea/, .kotlin/
+git add -A && git commit -m "feat(scaffold): initial production-grade Android scaffold"
+```
+`local.properties` and any keystore are **never** committed (QUALITY-BAR §4); ship `local.properties.example` instead. Write the CI workflow in the same commit so the gate exists from the first push rather than being retrofitted.
+
+## Quality Gates & CI <!-- 26 -->
 Same gate for local and CI (QUALITY-BAR §7, §8): `ktlintCheck detekt lint testDebugUnitTest assembleDebug` on push; Compose UI + Robolectric/Room integration tests on a separate instrumented job; all red gates block merge; trunk-based + Conventional Commits.
 ```bash
 ./gradlew ktlintCheck detekt lint testDebugUnitTest assembleDebug # the universal gate
 ```
-Release builds additionally run `bundleRelease`, regenerate the baseline profile, and enforce the ≥75% coverage floor (§ testing). A Jan-Jacoco/report task wires coverage into the gate so a below-floor merge fails loudly rather than shipping silently.
+Release builds additionally run `bundleRelease` and regenerate the baseline profile.
+
+**Coverage must be wired, not asserted.** GT-A1 passed 26/26 unit tests with no coverage tooling at all, so §6's ≥75% floor was unmeasurable — a floor nobody measures is not a floor. JaCoCo is part of the scaffold, and the verification task runs in the same gate:
+```kotlin
+// app/build.gradle.kts
+plugins { jacoco }
+
+tasks.register<JacocoCoverageVerification>("jacocoCoverageVerification") {
+    dependsOn("testDebugUnitTest")
+    violationRules {
+        rule {                                   // QUALITY-BAR §6 — a floor, not a goal
+            limit { minimum = "0.75".toBigDecimal() }
+        }
+    }
+}
+```
+```bash
+./gradlew ktlintCheck detekt lint testDebugUnitTest jacocoCoverageVerification assembleDebug
+```
+A below-floor merge fails loudly rather than shipping silently.
 
