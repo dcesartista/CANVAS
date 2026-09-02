@@ -7,7 +7,7 @@
 - [ ] Strict Clean: `domain` pure Kotlin — zero `android.*` imports (forbidden-import rule on).  (§1)
 - [ ] Dependency rule: UI/data → domain abstractions only.  (§1)
 - [ ] UDF: state flows one way; ViewModel reduces; `collectAsStateWithLifecycle` renders.  (§1)
-- [ ] `minSdk 34+`, `targetSdk` latest, single-activity + Navigation 3.  (§1)
+- [ ] `minSdk 34+`, `targetSdk` latest, single-activity + Navigation Compose 2.x with `@Serializable` type-safe routes (no string routes).  (§1)
 
 ## 2. Data & persistence
 - [ ] Room entities ↔ DTOs mapped in `data`; no leak into `domain`.  (§2)

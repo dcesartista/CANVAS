@@ -78,25 +78,36 @@ class TokenAuthenticator @Inject constructor(
 ```
 `Mutex` guarantees one refresh; a failed refresh returns `null` (signal to log out), never a loop of retries.
 
-## Deny-By-Default <!-- 20 -->
+## Deny-By-Default <!-- 31 -->
 **Start closed, open narrowly** (QUALITY-BAR §4): nothing is reachable, exported, or authorized unless an explicit gate lets it be. Every protected destination sits behind a navigation guard driven by **auth state**, not "known to be behind a logged-in screen." Components default to `android:exported=false`, files are private, and shared data is explicit — a default-open surface is a finding.
 ```kotlin
+@Serializable data object LoginRoute
+@Serializable data object HomeRoute
+@Serializable data object AccountRoute
+@Serializable data object AuthedGraph
+
 @Composable fun AppNav(authState: StateFlow<AuthState>) {
   val state by authState.collectAsStateWithLifecycle()
-  NavHost(navController, startDestination = "login") {
-    composable("login") { LoginRoute() }
-    navigation(startDestination = "home", route = "authed") { // deny-by-default group
-      composable("home") { HomeRoute() }
-      composable("account") { AccountRoute() }
+  // The guard is the START DESTINATION, not a post-composition effect: an
+  // unauthenticated session can never compose a protected screen, not even once.
+  NavHost(
+    navController,
+    startDestination = if (state.isAuthenticated) AuthedGraph else LoginRoute,
+  ) {
+    composable<LoginRoute> { LoginScreen() }
+    navigation<AuthedGraph>(startDestination = HomeRoute) {   // deny-by-default group
+      composable<HomeRoute> { HomeScreen() }
+      composable<AccountRoute> { AccountScreen() }
     }
   }
-  LaunchedEffect(state) {           // nav guard driven purely by auth state
-    if (state.isAuthenticated) navController.navigate("authed") { launchSingleTop = true }
-    else navController.navigate("login") { popUpTo(0) { inclusive = true } }
+  LaunchedEffect(state.isAuthenticated) {        // react to sign-out mid-session
+    if (!state.isAuthenticated) {
+      navController.navigate(LoginRoute) { popUpTo(0) { inclusive = true } }
+    }
   }
 }
 ```
-Authorized destinations live in a guarded group; unauthenticated state forcibly routes to `login`.
+Authorized destinations live in a guarded group reached only when auth state already permits it. Deciding in `startDestination` rather than a `LaunchedEffect` after the `NavHost` is the difference between a screen that is unreachable and one that renders for a frame before redirecting — the latter has already leaked.
 
 ## Network Security <!-- 24 -->
 **Transport is TLS everywhere and cleartext is blocked** (QUALITY-BAR §4): the default network-security config forbids cleartext, so an `http://` URL in production is an immediate failure. Private endpoints additionally pin or restrict trust via the network-security config. Certificates are validated by default (hostname + chain); debug-only endpoints are strictly separated from production.
