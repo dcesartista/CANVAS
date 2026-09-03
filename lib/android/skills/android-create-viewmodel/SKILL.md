@@ -18,8 +18,10 @@ Create one **ViewModel** (+ its UI State). Create-only — if it exists, STOP.
 2. Write `ui/<feature>/<Screen>ViewModel.kt` + `<Screen>UiState.kt`:
    - `@HiltViewModel`, constructor-injected use cases; **single observable state** exposed (internal mutable + `copy()` updates — UDF, [QUALITY-BAR](../../../../QUALITY-BAR.md) §1).
    - events as functions (`onX`); one-shot events per `lib/android/reference/presentation-impl.md` → `## One-Shot Event`.
-   - immutable UI state type (data class, or sealed for exclusive states).
+   - immutable UI state type: a `data class` whose **loadable subject is a `ScreenState<T>`** (`Loading` · `Empty(reason)` · `Error(message)` · `Content(value)`), never parallel `loading: Boolean` / `error: String?` fields. Data shown *alongside* the subject stays a plain field — one phase per loadable subject.
+   - **map outcomes to phases here, not in the screen.** An empty result is `Empty`, not `Content(emptyList())`; give it a `reason` when the copy should differ (filtered vs unfiltered, signed-out vs genuinely empty).
+   - **expose domain objects, not slot structs.** The screen maps a domain object to the archetype's slots; the ViewModel does not know about `CollectionItemSlots` or any other presentation type. Keeping slots out of state is what lets the same state drive two inks.
 3. **No platform context** in the ViewModel; screen-scoped.
 
 ## Output
-`Glob` + `Grep`; confirm observable state exposure + no platform-context reference.
+`Glob` + `Grep`; confirm observable state exposure + no platform-context reference + **the UI state carries `ScreenState`, not parallel `loading`/`error` fields**.
