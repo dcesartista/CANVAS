@@ -1,96 +1,110 @@
 # Screen recipes
 
 > Domain screens as **compositions**, never as components. A screen named for a business noun
-> — `product-list`, `checkout`, `settings` — is a recipe: an archetype (Palette ADR-0003) plus
-> domain content. Recipes live here, in prose. They are never added to ink-basic, because a
-> design system whose units are business nouns is coupled to one product's domain and stops
+> — `product-list`, `checkout` — is a recipe: an archetype (Palette ADR-0003) with its slots
+> filled by domain content. Recipes live here in prose. They never ship in ink-basic, because
+> a design system whose units are business nouns is coupled to one product's domain and stops
 > being swappable.
 
 Read with `lib/android/reference/presentation-impl.md` → `## Screen archetypes`.
 
-## How to read a recipe <!-- 7 -->
+## How to read a recipe <!-- 9 -->
 
-Each recipe names its **archetype**, what goes in each **region**, what the **phases** mean
-for this screen, and anything non-obvious. Everything else follows from the archetype.
-
----
-
-## `product-list` <!-- 12 -->
-
-| | |
-|---|---|
-| Archetype | `list` |
-| top | `CanvasTopBar` with the catalogue name |
-| body | `CanvasListBody`, item = `CanvasCard` with thumbnail · title · category · price |
-| header | optional `LazyRow` of `CanvasChip` category filters |
-| bottom | none |
-| `empty` | distinguish **filtered** from **unfiltered**: `Empty("Nothing in $category")` vs `Empty()`. Same layout, different copy — this is what `reason` is for |
-| `error` | always offer retry; a catalogue that failed to load is always retryable |
-
-## `product-detail` <!-- 10 -->
-
-| | |
-|---|---|
-| Archetype | `detail` |
-| top | `CanvasTopBar` + back `CanvasIconButton` |
-| body | full-bleed media header, then title · price · rating · description in `CanvasSection`s |
-| bottom | **pinned** "Add to cart" — a long description must not push the primary action off-screen |
-| `empty` | not applicable. A product that does not exist is `Error("Product not found")` |
-
-## `search` <!-- 9 -->
-
-| | |
-|---|---|
-| Archetype | `list` |
-| top | `CanvasTopBar` + `CanvasSearchBar` — **in the top region**, so it stays put while results scroll |
-| body | `CanvasListBody` of result cards |
-| `empty` | carries **two** meanings: pre-search idle (`Empty("Type to search")`) and no matches (`Empty("No results for \"$q\"")`). Both are `empty` with a reason — do not invent an `Idle` phase for this |
-
-## `checkout` <!-- 12 -->
-
-| | |
-|---|---|
-| Archetype | `form`, as a **wizard-step** recipe |
-| top | `CanvasTopBar` + `CanvasStepper` showing position |
-| body | `CanvasFormBody`; one step's fields at a time |
-| bottom | **pinned** Back / Continue. This recipe is why the `bottom` region is in the contract |
-| `error` | the **cart** failed to load — checkout cannot start |
-| submission failure | `CanvasBanner` inside the body. Never the `error` phase: replacing the body would discard the address the user just typed |
-| `empty` | an empty or signed-out cart is `Empty(reason)`, with the reason carrying the fix |
-
-## `ecommerce-home` (feed) <!-- 9 -->
-
-| | |
-|---|---|
-| Archetype | `list`, as a **feed** recipe |
-| top | `CanvasTopBar` |
-| body | `CanvasListBody` whose item is a `CanvasSection` wrapping a `LazyRow` rail |
-| note | the outer list is lazy and keyed by rail; each rail is keyed by product. Nesting a `LazyRow` inside a `CanvasListBody` item is fine — nesting a *vertical* scroller inside one is not |
-
-## `settings` <!-- 10 -->
-
-| | |
-|---|---|
-| Archetype | `form` |
-| top | `CanvasTopBar` |
-| body | `CanvasFormBody` with `fieldSpacing = space.layout.section`, grouped into `CanvasSection`s |
-| bottom | none — preferences apply on change |
-| phases | in practice content-only: there is nothing to load and nothing to submit. Do not add a phase host that can only ever render one phase |
-
-## `auth` / `login` <!-- 12 -->
-
-| | |
-|---|---|
-| Archetype | `form` |
-| top | `CanvasTopBar` |
-| body | `CanvasFormBody`; submit control **disables** while busy, never swapped for a spinner |
-| submission failure | `CanvasBanner` at the top of the body |
-| navigation | on success, navigate from a `LaunchedEffect` — **never from composition**. Calling a navigation callback in the composable body re-fires on every recomposition |
+Each recipe names its **archetype**, its **shell**, and how its **slots** are filled. It does
+not describe layout — that is the ink's, and two inks will render the same recipe very
+differently. The recipes below are drawn from two unrelated commercial kits, and where they
+disagree that disagreement is recorded rather than resolved: it is evidence about what varies.
 
 ---
 
-## Adding a recipe <!-- 5 -->
+## `product-list` <!-- 17 -->
 
-Write it here first. A recipe **graduates to an archetype** only when a second, independent
-screen shares its structure (ADR-0003 admission rule) — at which point it moves into ADR-0003
-and the layout layer, not before. `feed` and `wizard-step` are both sitting at one instance.
+| | |
+|---|---|
+| Archetype | Collection · Page shell |
+| `item.title` | product name |
+| `item.supporting` | brand *(editorial)* or description *(marketplace)* |
+| `item.price` | formatted by the app; the ink never does currency maths |
+| `item.priceCompare` · `discountLabel` | marketplace only |
+| `item.rating` | marketplace only |
+| `empty` | distinguish **filtered** from **unfiltered**: `Empty("Nothing in $category")` vs `Empty()` |
+| `error` | always retryable |
+
+**Observed divergence:** the editorial kit ships title + price and nothing else; the
+marketplace kit fills every optional slot. Same recipe. If your app has no rating data, the
+slot is simply absent — that is not a defect.
+
+## `product-detail` <!-- 11 -->
+
+| | |
+|---|---|
+| Archetype | Detail · Page shell |
+| Bands | `media → identity → options → commit → support → related` |
+| `commit` | one action *(editorial: add to basket)* or two co-equal *(marketplace: cart + buy now)* |
+| `empty` | not applicable — a product that does not exist is `Error("Product not found")` |
+
+**Not yet buildable.** Needs media carousel, swatch picker and disclosure.
+
+## `cart` <!-- 7 -->
+
+| | |
+|---|---|
+| Archetype | Review · Overlay shell |
+| `empty` | first-class, and **actionable**: the pinned region persists and its action changes from "buy now" to "continue shopping". Use `emptyAction` |
+
+## `checkout` <!-- 11 -->
+
+| | |
+|---|---|
+| Archetype | Review · Page shell |
+| Flow | single review *(editorial)* or a multi-step **flow** *(marketplace: review → payment → order → confirm)* |
+| submission failure | banner inside `content`, never the `error` phase — that would discard the address just typed |
+
+**Flow is a wrapper, not an archetype.** It supplies step position and back/next; each step is
+an ordinary Review, Form or Picker.
+
+## `search` <!-- 11 -->
+
+| | |
+|---|---|
+| Archetype | Search entry *(Overlay)* → results are a **Collection** |
+| `empty` | carries two meanings — pre-search idle and no-matches. Both are `Empty(reason)` |
+
+**Observed divergence worth knowing:** one kit has a dedicated search overlay; the other has no
+search screen at all, only a persistent header field feeding the Collection. Whether search is
+a screen may itself be an ink-level decision.
+
+## `home` (feed) <!-- 9 -->
+
+| | |
+|---|---|
+| Archetype | Feed · Page shell |
+| `sections[]` | editorial: hero, new-arrivals grid, brand strip, collections, video, social. marketplace: promo carousel, deal-of-day, product rails, sponsored |
+
+**Not yet buildable.** Needs hero, rails and promo bands.
+
+## `settings` <!-- 7 -->
+
+| | |
+|---|---|
+| Archetype | Form · Page shell |
+| phases | content-only in practice — nothing loads, nothing submits. Do **not** add a phase host that can only ever render one phase |
+
+## `auth` <!-- 12 -->
+
+| | |
+|---|---|
+| Archetype | Auth · **Focused** shell |
+| navigation | on success, navigate from a `LaunchedEffect` — **never from composition**, which re-fires on every recomposition |
+| submit | disables while busy; never replaced by a spinner, which removes it from the accessibility tree mid-interaction |
+
+**Not yet buildable.** Needs secure field and social-auth row.
+
+---
+
+## Adding a recipe <!-- 6 -->
+
+Write it here first. A recipe becomes an **archetype** only when two independent external
+references share its structure — not when two screens in one app happen to. Deriving
+archetypes from screens the system itself generated is circular and was the mistake that
+required ADR-0003 to be rewritten.

@@ -30,13 +30,18 @@ Feature with a local Room cache and remote datasource; kill/rotate during an in-
 A complete scaffold passes the full release audit. **Exit criterion:** `/audit` returns no `fail` on §7 (R8/AAB/baseline profile/version catalog/CI) — including a green CI run and an `assembleRelease` build with baseline profile + minification. Scored on: §7 release, §8 delivery.
 
 ### GT-A6. Screen archetype conformance
-Scaffold, then generate **three screens of different archetypes** (`list`, `detail`, `form`) via `/build-android-feature`. **Exit criterion:** each content composable declares its archetype in KDoc; all three use `CanvasScreenScaffold` (zero raw `Scaffold(`); all three render phases through `CanvasStateHost` (zero screen-level `when { state.loading … }`); the `list` screen handles **all four** phases including `empty`, and uses `CanvasListBody` with a `key`; the `form` screen renders a submission failure as a banner, not as the error phase; UI state carries `ScreenState`, not parallel `loading`/`error` fields; `detekt` reports no `LongMethod` on any `*Content` function. Scored on: §1 UDF, §5 design-system seam + screen structure + a11y.
+Scaffold, then generate screens for every archetype ink-basic can currently build — **Collection** and **Prompt** — one in a Page shell and one in a Focused or Overlay shell. **Exit criterion:** each content composable declares its archetype *and shell* in KDoc; every screen frames with a shell (zero raw `\bScaffold\(`); every screen with a loadable subject renders phases through `CanvasStateHost` (zero screen-level `when { state.loading … }`), while a content-only screen carries no phase host at all; the Collection screen handles **all four** phases including `empty`, uses `CanvasCollection` with a `key`, and supplies **slot values** rather than choosing widgets or sizing media at the call site; UI state carries `ScreenState` and exposes domain objects, not slot structs; `detekt` reports no `LongMethod` on any `*Content` function.
+
+**Second run, same task, different density.** Re-render the Collection screen with the other density. The diff must be **one enum value**. If anything else changes, the slot contract has leaked and the run fails — this is the check that a second ink remains possible.
 
 > This task exists because component-level conformance did not produce structural
 > conformance. Nine screens built from a complete, conformant component inventory still
 > produced nine hand-rolled frames, four loading treatments, four error treatments, three
 > silent empty states, and three different page paddings — and reached for the shipped
-> `CanvasErrorState` **zero** times. See `canvas-commerce/docs/screen-variance.md`.
+> `CanvasErrorState` **zero** times.
+>
+> Archetypes that ink-basic cannot yet build are **out of scope** for this task, and a run
+> that hand-rolls one from raw M3 fails rather than passes.
 
 ## Scoring rubric
 

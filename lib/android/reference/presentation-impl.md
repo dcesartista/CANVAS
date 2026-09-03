@@ -121,15 +121,15 @@ Pull it in as a dependency (composite build / submodule or published Maven — s
 
 ## ink-basic self-check <!-- 26 -->
 CANVAS is the tool that *builds* the UI, so it enforces the seam itself — no separate linter needed. After writing a screen, **`Grep` the generated file and reject it** if any violation below appears; fix and re-verify before reporting done (mirrors the build/test gates). These are the only valid escape hatches and must not be used lightly:
-1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ink-basic names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`) may remain raw — **`Scaffold` no longer may**; use `CanvasScreenScaffold` (see `## Screen archetypes`).
+1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ink-basic names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`) may remain raw — **`Scaffold` no longer may**; use one of the three shells (see `## Screen archetypes`).
 2. **Raw primitive color/hex in a component** — a literal `Color(0x...` or `Color.Red`/`Color.White` used as fill/text/border/bg. Use a T3 semantic color via `LocalSemanticTokens` (e.g. `t.color.textPrimary`, `t.color.bgSurface`, `t.color.error`), never a hex literal.
 3. **Raw `dp` where a token exists** — `padding(16.dp)`, `height(64.dp)`, `size(48.dp)` etc. for spacing/elevation/radius/sizing. Use `t.space.*`, `t.radius.*`, `t.elevation.*`, `t.sizing.*`. (Hairline strokes `1.dp` borders/dividers and `0.dp` gaps are accepted.)
 4. **Bare `MaterialTheme.typography.*` / `MaterialTheme.colorScheme.*`** — UI must come from ink-basic tokens (`TextFromType` or the component's own text). This also catches a missing `CanvasTheme` root (which is what populates `LocalSemanticTokens`).
-5. **Raw `Scaffold(`** — the page frame is `CanvasScreenScaffold`, which owns the regions and resolves page inset to `space.layout.page`.
+5. **Raw `Scaffold(`** — the frame is one of the three shells (`CanvasPageShell`, `CanvasOverlayShell`, `CanvasFocusedShell`), which own the regions and resolve page inset to `space.layout.page`. Match on `\bScaffold\(`, **not** `Scaffold(`: the latter is a substring of the shell names and flags every conformant screen.
 6. **Hand-rolled phase branching** — a `when {` or `if/else` in a screen that switches on `state.loading` / `state.error != null` / `isEmpty()`. Phases are `ScreenState` and are rendered by `CanvasStateHost`. This is the highest-value check: it is what produced nine screens with four different loading treatments, four error treatments, and three that rendered nothing when empty.
 7. **A missing empty phase** — a `list`-archetype screen whose state cannot express empty. Empty is an outcome, not an oversight.
-8. **An unkeyed lazy list** — `LazyColumn` written directly instead of `CanvasListBody`, whose `key` parameter is mandatory.
-9. **Page padding invented locally** — a screen applying its own `padding(t.space.md)` at page level instead of using the padding `CanvasScreenScaffold` hands it.
+8. **A hand-built collection** — `LazyColumn(` or `LazyVerticalGrid(` written directly in a Collection screen instead of `CanvasCollection`, whose `key` is mandatory and whose density is the ink's to choose. (`CanvasListBody` remains correct for a non-Collection body, e.g. Review line items.)
+9. **Page padding invented locally** — a screen applying its own `padding(t.space.md)` at page level instead of using the padding the shell hands it.
 
 Anti-pattern example the self-check must reject:
 ```kotlin
@@ -145,44 +145,99 @@ Box(Modifier.padding(t.space.md).background(t.color.accentPrimary)) { ... }
 ```
 If the screen legitimately needs behavior ink-basic lacks, **compose it from existing `Canvas*` components** rather than dropping to raw M3. Only a genuinely new compound should be added to ink-basic (and then to the Palette inventory), never hand-rolled in the screen.
 
-## Screen archetypes <!-- 39 -->
-Structure is a contract, not a per-screen decision (Palette **ADR-0003**). Every screen **declares an archetype** and is built from the `com.canvas.ink.basic.layout` package rather than assembling regions by hand.
+## Screen archetypes <!-- 94 -->
+Structure is a contract, not a per-screen decision (Palette **ADR-0003**). An archetype fixes
+what a screen *means* and in what order; it never fixes what it looks like. Three ideas:
 
-| Archetype | Frame | Body | Phases required |
-|---|---|---|---|
-| `list` | `CanvasScreenScaffold` | `CanvasListBody` (mandatory `key`) | loading · empty · error · content |
-| `detail` | `CanvasScreenScaffold` | `verticalScroll` column, or `CanvasSection`s | loading · error · content (no empty) |
-| `form` | `CanvasScreenScaffold` | `CanvasFormBody` (applies the keyboard inset) | loading · error · content (no empty) |
+**Shell** — chosen independently of the archetype. `CanvasPageShell` (chrome + footer-or-tabs),
+`CanvasOverlayShell` (dismiss, never a footer), `CanvasFocusedShell` (no chrome; a title there
+is a headline in the body). A shell declares its `NavigationModel`. Drawer versus bottom tabs
+is a different navigation graph, not a different rendering — never switch it silently.
 
-`feed` and `wizard-step` are **recipes**, not archetypes — compose them from the above (see `screen-recipes.md`). A screen named for a business noun is always a recipe.
+**Bands** — slots are grouped into ordered bands. Order *between* bands is contractual; order
+*within* a band is free. A Detail screen may put size chips above the title, because the
+guarantee is *options precede commit*, not a fixed sequence.
 
-**The phase type.** UI state models phases as `ScreenState<T>` — `Loading` · `Empty(reason)` · `Error(message)` · `Content(value)` — never parallel `loading: Boolean` / `error: String?` fields, which permit "loading and error at once". Map to it in the ViewModel; the screen never decides a phase.
+**Slots** — named, semantic, and supplied as **values, not widgets**. `CollectionItemSlots`
+carries `title`, `supporting`, `price`, `priceCompare`, `discountLabel`, `rating`. The ink
+decides typography, arrangement and density. This is what lets one call render an editorial
+catalogue and a marketplace listing.
 
-**Form caveat.** For a `form`, the `error` phase means the form could not be *prepared*. A failed **submission** renders as a `CanvasBanner` inside the content — never as the error phase, because that replaces the body and discards what the user typed. A busy submit control **disables**; it is never swapped for a progress indicator, which would remove it from the accessibility tree mid-interaction.
+### Slot coverage
+Each slot is `required`, `recommended` or `optional`. That enum is the whole machine-checkable
+contract — there is no manifest and no tooling.
+
+| Level | When the app cannot fill it |
+|---|---|
+| required | **Stop.** Explain, and ask the user |
+| recommended | Proceed, and report the omission |
+| optional | Omit silently |
+
+Every interesting judgment — is this ink right, does dropping ratings hurt, is truncation
+acceptable — is yours. The levels exist so you reason against something fixed instead of
+re-deriving intent from prose each run, which is how drift starts.
+
+### Media ownership
+Where an archetype has a media slot, the app passes a lambda and **the ink passes the
+`Modifier` into it**. The app owns *which* image; the ink owns *how large and what shape*.
+Never size or clip media at the call site.
+
+### The 13, and what can actually be built today
+Naming an archetype whose components do not exist yet produces code that will not compile, so
+check this column before starting.
+
+| Archetype | Shell | Buildable now |
+|---|---|---|
+| Collection | Page · Overlay | **yes** — `CanvasCollection`, densities `Grid2` and `RowCompact` |
+| Prompt | Page · Focused | **yes** — shell + existing components |
+| Form | Page · Focused | partial — `CanvasFormBody` exists; no 2-col pairing, no field helper |
+| Detail | Page | **no** — needs media carousel, swatches, disclosure |
+| Feed | Page | **no** — needs hero, rails, promo bands |
+| Review | Page · Overlay | **no** — needs quantity stepper, totals block |
+| Article, Search entry, Nav menu, Immersive, Auth, Onboarding, Confirm dialog | various | **no** |
+
+If the archetype you need is not buildable, **stop and say so** rather than hand-rolling it
+from raw M3 — a hand-rolled screen is exactly the drift this layer exists to prevent.
+
+### Phases
+`ScreenState` — `Loading` · `Empty(reason)` · `Error(message)` · `Content(value)` — rendered by
+`CanvasStateHost`. Never parallel `loading: Boolean` / `error: String?` fields. Map to phases in
+the ViewModel; the screen never decides one.
+
+`empty` is frequently **actionable**: an empty cart keeps its pinned region and changes the
+action from "buy now" to "continue shopping". Use `emptyAction`.
+
+**Form caveat.** `error` means the form could not be *prepared*. A failed **submission** renders
+as a banner inside `content` — never the error phase, which would replace the body and destroy
+what the user typed. A busy submit control **disables**; it is never swapped for a progress
+indicator, which would remove it from the accessibility tree mid-interaction.
 
 ```kotlin
-// ✅ list archetype — frame, phases and item identity are all structural
-CanvasScreenScaffold(
-    topBar = { CanvasTopBar(title = "Products") },
-) { padding ->
+// Collection archetype, Page shell. The app supplies values; ink-basic decides the look.
+CanvasPageShell(topBar = { CanvasTopBar(title = "Apparel") }) { padding ->
     CanvasStateHost(state = state.products, onRetry = onRefresh) { products ->
-        CanvasListBody(items = products, key = { it.id.value }, contentPadding = padding) {
-            ProductRow(it)
-        }
+        CanvasCollection(
+            items = products,
+            key = { it.id.value },
+            slots = { CollectionItemSlots(title = it.title, price = it.displayPrice) },
+            media = { p, inkModifier -> AsyncImage(p.imageUrl, null, inkModifier) },
+            density = CollectionDensity.Grid2,
+            contentPadding = padding,
+        )
     }
 }
 ```
 ```kotlin
-// ❌ REJECT — hand-rolled frame and phases; no empty branch at all
+// ❌ REJECT — hand-assembled frame, hand-rolled phases, widgets chosen at the call site
 Column(Modifier.fillMaxSize()) {
-    CanvasTopBar(title = "Products")
+    CanvasTopBar(title = "Apparel")
     when {
         state.loading -> Box(Modifier.fillMaxSize()) { CanvasProgress() }
-        state.error != null -> Box(Modifier.fillMaxSize()) { Text(state.error) }
-        else -> LazyColumn { items(state.products) { ProductRow(it) } }
+        else -> LazyColumn { items(state.products) { CanvasCard { /* ... */ } } }
     }
 }
 ```
+
 
 ## State Hoisting <!-- 8 -->
 Request state (and any state with lifecycle needs) is hoisted to the ViewModel and passed down; local, ephemeral UI state (text field draft, expansion toggles) stays in the composable via `rememberSaveable`. Hoist the *minimum*: lift state only until it's needed by siblings or for persistence.
