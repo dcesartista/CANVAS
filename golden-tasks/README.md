@@ -29,6 +29,15 @@ Feature with a local Room cache and remote datasource; kill/rotate during an in-
 ### GT-A5. Release-readiness pass
 A complete scaffold passes the full release audit. **Exit criterion:** `/audit` returns no `fail` on §7 (R8/AAB/baseline profile/version catalog/CI) — including a green CI run and an `assembleRelease` build with baseline profile + minification. Scored on: §7 release, §8 delivery.
 
+### GT-A6. Screen archetype conformance
+Scaffold, then generate **three screens of different archetypes** (`list`, `detail`, `form`) via `/build-android-feature`. **Exit criterion:** each content composable declares its archetype in KDoc; all three use `CanvasScreenScaffold` (zero raw `Scaffold(`); all three render phases through `CanvasStateHost` (zero screen-level `when { state.loading … }`); the `list` screen handles **all four** phases including `empty`, and uses `CanvasListBody` with a `key`; the `form` screen renders a submission failure as a banner, not as the error phase; UI state carries `ScreenState`, not parallel `loading`/`error` fields; `detekt` reports no `LongMethod` on any `*Content` function. Scored on: §1 UDF, §5 design-system seam + screen structure + a11y.
+
+> This task exists because component-level conformance did not produce structural
+> conformance. Nine screens built from a complete, conformant component inventory still
+> produced nine hand-rolled frames, four loading treatments, four error treatments, three
+> silent empty states, and three different page paddings — and reached for the shipped
+> `CanvasErrorState` **zero** times. See `canvas-commerce/docs/screen-variance.md`.
+
 ## Scoring rubric
 
 - **pass** — meets all cited Quality-Bar items for that task (evidence: file + line).
