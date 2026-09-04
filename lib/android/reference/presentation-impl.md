@@ -119,7 +119,7 @@ Wrap `MainActivity.setContent { CanvasTheme { AppNavHost() } }`. To rebrand, pas
 
 Pull it in as a dependency (composite build / submodule or published Maven — see `ink-basic/CONSUMING.md`). The contract these realize lives in the agnostic sibling **Palette** repo (`docs/0001-ui-token-contract.md`, `docs/0002-component-inventory.md`); CANVAS owns the non-themeable core-correctness floor only.
 
-## ink-basic self-check <!-- 26 -->
+## ink-basic self-check <!-- 27 -->
 CANVAS is the tool that *builds* the UI, so it enforces the seam itself — no separate linter needed. After writing a screen, **`Grep` the generated file and reject it** if any violation below appears; fix and re-verify before reporting done (mirrors the build/test gates). These are the only valid escape hatches and must not be used lightly:
 1. **Raw M3 widget instead of a `Canvas*` component** — a call to `Button(`, `OutlinedButton(`, `OutlinedTextField(`, `Card(`, `TextField(`, `TopAppBar(`, `NavigationBar(`, `TabRow(`, `Snackbar(`, `LinearProgressIndicator(` / `CircularProgressIndicator(`, `Divider(`/`HorizontalDivider(`. Use the ink-basic names instead (`CanvasButton`, `CanvasTextField`, `CanvasCard`, `CanvasTopBar`, `CanvasBottomNav`, `CanvasTabRow`, `CanvasSnackbar`, `CanvasProgress`). Only the **layout** primitives (`Column`, `Row`, `LazyColumn`, `Box`, `Spacer`, `Surface`) may remain raw — **`Scaffold` no longer may**; use one of the three shells (see `## Screen archetypes`).
 2. **Raw primitive color/hex in a component** — a literal `Color(0x...` or `Color.Red`/`Color.White` used as fill/text/border/bg. Use a T3 semantic color via `LocalSemanticTokens` (e.g. `t.color.textPrimary`, `t.color.bgSurface`, `t.color.error`), never a hex literal.
@@ -130,6 +130,7 @@ CANVAS is the tool that *builds* the UI, so it enforces the seam itself — no s
 7. **A missing empty phase** — a `list`-archetype screen whose state cannot express empty. Empty is an outcome, not an oversight.
 8. **A hand-built collection** — `LazyColumn(` or `LazyVerticalGrid(` written directly in a Collection screen instead of `CanvasCollection`, whose `key` is mandatory and whose density is the ink's to choose. (`CanvasListBody` remains correct for a non-Collection body, e.g. Review line items.)
 9. **Page padding invented locally** — a screen applying its own `padding(t.space.md)` at page level instead of using the padding the shell hands it.
+10. **Widgets chosen at the call site for a slot** — a screen picking `CanvasCard` versus `CanvasListItem` for a collection item, or calling `.size(`/`.aspectRatio(`/`.clip(` on media it passes to a slot lambda. Supply slot **values**; the ink renders them, and the ink hands you the media `Modifier`. This is the only check that catches the mistake which would quietly make a second ink impossible, and it is invisible to the compiler.
 
 Anti-pattern example the self-check must reject:
 ```kotlin
